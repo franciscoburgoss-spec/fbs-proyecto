@@ -2,9 +2,11 @@ import sqlite3
 import os
 from contextlib import contextmanager
 from pathlib import Path
+from passlib.context import CryptContext
 
 DB_PATH = os.environ.get("FBS_DB_PATH", "./fbs.db")
 
+_pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 @contextmanager
 def get_conn():
@@ -56,6 +58,16 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_docs_proyecto ON documentos(proyecto_id);
             CREATE INDEX IF NOT EXISTS idx_docs_estado ON documentos(estado);
             CREATE INDEX IF NOT EXISTS idx_docs_etapa ON documentos(etapa);
+
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL UNIQUE,
+                email TEXT NOT NULL UNIQUE,
+                password_hash TEXT NOT NULL,
+                rol TEXT NOT NULL DEFAULT 'user' CHECK(rol IN ('admin', 'user')),
+                activo INTEGER NOT NULL DEFAULT 1,
+                fecha_creacion TEXT DEFAULT (datetime('now'))
+            );
             """
         )
 
@@ -66,6 +78,13 @@ def seed_data():
         # Solo si esta vacio
         count = conn.execute("SELECT COUNT(*) FROM proyectos").fetchone()[0]
         if count > 0:
+            # Asegurar que el admin existe aunque ya haya datos
+            admin_count = conn.execute("SELECT COUNT(*) FROM usuarios WHERE username = 'admin'").fetchone()[0]
+            if admin_count == 0:
+                conn.execute(
+                    "INSERT INTO usuarios (username, email, password_hash, rol) VALUES (?, ?, ?, ?)",
+                    ("admin", "admin@fbs.local", _pwd.hash("admin123"), "admin"),
+                )
             return
 
         conn.executemany(
@@ -105,3 +124,11 @@ def seed_data():
                 (3, "Habilitacion Central", "HAB", "CHK", "ING", "PDF", "02", "01", None),
             ],
         )
+
+        # Crear usuario admin por defecto
+        admin_count = conn.execute("SELECT COUNT(*) FROM usuarios WHERE username = 'admin'").fetchone()[0]
+        if admin_count == 0:
+            conn.execute(
+                "INSERT INTO usuarios (username, email, password_hash, rol) VALUES (?, ?, ?, ?)",
+                ("admin", "admin@fbs.local", _pwd.hash("admin123"), "admin"),
+            )

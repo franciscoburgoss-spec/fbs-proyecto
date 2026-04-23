@@ -1,18 +1,19 @@
 import sqlite3
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 
 from backend.database import get_conn
 from backend.schemas.proyecto import ProyectoOut, ProyectoIn, ProyectoUpdate
 from backend.domain.proyecto_engine import get_validator
 from backend.registro import emit_evento
+from backend.routers.auth import require_auth
 from spec_engine.validator import TransitionError
 
 router = APIRouter()
 
 
 @router.get("", response_model=List[ProyectoOut])
-def listar_proyectos():
+def listar_proyectos(user: dict = Depends(require_auth)):
     with get_conn() as conn:
         rows = conn.execute(
             "SELECT * FROM proyectos ORDER BY fecha_creacion DESC"
@@ -21,7 +22,7 @@ def listar_proyectos():
 
 
 @router.get("/{id}", response_model=ProyectoOut)
-def obtener_proyecto(id: int):
+def obtener_proyecto(id: int, user: dict = Depends(require_auth)):
     with get_conn() as conn:
         row = conn.execute("SELECT * FROM proyectos WHERE id = ?", (id,)).fetchone()
     if not row:
@@ -30,7 +31,7 @@ def obtener_proyecto(id: int):
 
 
 @router.post("", response_model=ProyectoOut, status_code=201)
-def crear_proyecto(data: ProyectoIn):
+def crear_proyecto(data: ProyectoIn, user: dict = Depends(require_auth)):
     with get_conn() as conn:
         try:
             cursor = conn.execute(
@@ -50,7 +51,7 @@ def crear_proyecto(data: ProyectoIn):
 
 
 @router.patch("/{id}", response_model=ProyectoOut)
-def actualizar_proyecto(id: int, data: ProyectoUpdate):
+def actualizar_proyecto(id: int, data: ProyectoUpdate, user: dict = Depends(require_auth)):
     with get_conn() as conn:
         row = conn.execute("SELECT * FROM proyectos WHERE id = ?", (id,)).fetchone()
         if not row:
@@ -78,7 +79,7 @@ def actualizar_proyecto(id: int, data: ProyectoUpdate):
 
 
 @router.delete("/{id}", status_code=204)
-def eliminar_proyecto(id: int):
+def eliminar_proyecto(id: int, user: dict = Depends(require_auth)):
     with get_conn() as conn:
         row = conn.execute("SELECT id FROM proyectos WHERE id = ?", (id,)).fetchone()
         if not row:
@@ -96,7 +97,7 @@ def eliminar_proyecto(id: int):
 
 
 @router.post("/{id}/transicion", response_model=ProyectoOut)
-def transicionar_proyecto(id: int, body: dict):
+def transicionar_proyecto(id: int, body: dict, user: dict = Depends(require_auth)):
     """Body esperado: {'a': 'R1'} — la etapa destino."""
     destino = body.get("a")
     if not destino:

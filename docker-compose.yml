@@ -13,6 +13,7 @@ services:
     environment:
       - FBS_DB_PATH=/app/fbs.db
       - FBS_HISTORIAL_PATH=/app/registro/historial.jsonl
+      - JWT_SECRET=${JWT_SECRET:-fbs-dev-secret-key-cambiar-en-produccion}
 
   frontend:
     build:

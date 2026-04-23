@@ -47,3 +47,29 @@ export interface Stats {
   por_etapa: Record<string, number>
   por_estado: Record<string, number>
 }
+
+export interface Usuario {
+  id: number
+  username: string
+  email: string
+  rol: 'admin' | 'user'
+  activo: boolean
+  fecha_creacion: string
+}
+
+export interface LoginIn {
+  username: string
+  password: string
+}
+
+export interface RegisterIn {
+  username: string
+  email: string
+  password: string
+  rol?: 'admin' | 'user'
+}
+
+export interface Token {
+  access_token: string
+  token_type: string
+}

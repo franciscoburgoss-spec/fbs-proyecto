@@ -1,10 +1,29 @@
 import axios from 'axios'
-import type { Proyecto, ProyectoIn, Documento, DocumentoIn } from './types'
+import type { Proyecto, ProyectoIn, Documento, DocumentoIn, Usuario, LoginIn, RegisterIn, Token } from './types'
 
 const api = axios.create({
   baseURL: '/api',
   headers: { 'Content-Type': 'application/json' },
 })
+
+// --- Interceptor: agregar JWT desde localStorage ---
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('fbs_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
+// --- Auth ---
+export const login = (data: LoginIn) =>
+  api.post<Token>('/auth/login', data).then(r => r.data)
+
+export const register = (data: RegisterIn) =>
+  api.post<Usuario>('/auth/register', data).then(r => r.data)
+
+export const obtenerPerfil = () =>
+  api.get<Usuario>('/auth/me').then(r => r.data)
 
 // --- Proyectos ---
 export const listarProyectos = () => api.get<Proyecto[]>('/proyectos').then(r => r.data)

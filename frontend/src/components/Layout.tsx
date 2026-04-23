@@ -1,4 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 
 const navItems = [
   { to: '/', label: 'Dashboard' },
@@ -7,11 +8,13 @@ const navItems = [
 ]
 
 export default function Layout() {
+  const { user, logout } = useAuth()
+
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
-      <aside style={{ width: 200, borderRight: '1px solid #ddd', padding: 16 }}>
+      <aside style={{ width: 200, borderRight: '1px solid #ddd', padding: 16, display: 'flex', flexDirection: 'column' }}>
         <h2 style={{ margin: '0 0 16px' }}>FBS</h2>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
           {navItems.map(item => (
             <NavLink
               key={item.to}
@@ -28,6 +31,21 @@ export default function Layout() {
             </NavLink>
           ))}
         </nav>
+
+        {/* Footer del sidebar con usuario y logout */}
+        {user && (
+          <div style={{ borderTop: '1px solid #eee', paddingTop: 12, marginTop: 'auto' }}>
+            <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>
+              {user.username} ({user.rol})
+            </div>
+            <button
+              onClick={logout}
+              style={{ width: '100%', padding: '6px 8px', fontSize: 12, cursor: 'pointer' }}
+            >
+              Cerrar sesion
+            </button>
+          </div>
+        )}
       </aside>
       <main style={{ flex: 1, padding: 24, overflow: 'auto' }}>
         <Outlet />

@@ -1,10 +1,11 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import List, Optional, Literal
 
 from backend.database import get_conn
 from backend.schemas.documento import DocumentoOut, DocumentoIn, TransicionIn
 from backend.domain.documento_engine import get_validator
 from backend.registro import emit_evento
+from backend.routers.auth import require_auth
 from spec_engine.validator import TransitionError
 
 router = APIRouter()
@@ -12,6 +13,7 @@ router = APIRouter()
 
 @router.get("", response_model=List[DocumentoOut])
 def listar_documentos(
+    user: dict = Depends(require_auth),
     proyecto_id: Optional[int] = Query(None),
     etapa: Optional[Literal["CHK", "R1", "R2", "R3"]] = Query(None),
     estado: Optional[Literal["ING", "OBS", "COR", "APB"]] = Query(None),
@@ -39,7 +41,7 @@ def listar_documentos(
 
 
 @router.get("/{id}", response_model=DocumentoOut)
-def obtener_documento(id: int):
+def obtener_documento(id: int, user: dict = Depends(require_auth)):
     with get_conn() as conn:
         row = conn.execute("SELECT * FROM documentos WHERE id = ?", (id,)).fetchone()
     if not row:
@@ -48,7 +50,7 @@ def obtener_documento(id: int):
 
 
 @router.post("", response_model=DocumentoOut, status_code=201)
-def crear_documento(data: DocumentoIn, proyecto_id: int):
+def crear_documento(data: DocumentoIn, proyecto_id: int, user: dict = Depends(require_auth)):
     """Crea un documento asociado a un proyecto. La etapa se hereda del proyecto."""
     with get_conn() as conn:
         # Verificar que el proyecto existe
@@ -79,7 +81,7 @@ def crear_documento(data: DocumentoIn, proyecto_id: int):
 
 
 @router.patch("/{id}", response_model=DocumentoOut)
-def actualizar_documento(id: int, data: dict):
+def actualizar_documento(id: int, data: dict, user: dict = Depends(require_auth)):
     """Permite actualizar nombre, tipo, tt, nn. Estado y etapa via transicion."""
     campos_permitidos = {"nombre", "tipo", "tt", "nn"}
     campos = []
@@ -109,7 +111,7 @@ def actualizar_documento(id: int, data: dict):
 
 
 @router.delete("/{id}", status_code=204)
-def eliminar_documento(id: int):
+def eliminar_documento(id: int, user: dict = Depends(require_auth)):
     with get_conn() as conn:
         row = conn.execute("SELECT id FROM documentos WHERE id = ?", (id,)).fetchone()
         if not row:
@@ -121,7 +123,7 @@ def eliminar_documento(id: int):
 
 
 @router.post("/{id}/transicion", response_model=DocumentoOut)
-def transicionar_documento(id: int, body: TransicionIn):
+def transicionar_documento(id: int, body: TransicionIn, user: dict = Depends(require_auth)):
     with get_conn() as conn:
         row = conn.execute("SELECT * FROM documentos WHERE id = ?", (id,)).fetchone()
         if not row:
