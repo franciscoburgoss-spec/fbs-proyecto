@@ -78,3 +78,17 @@ def estadisticas_eventos(
         "total": total,
         "por_tipo": [dict(r) for r in por_tipo],
     }
+
+
+@router.get("/por-proyecto/{proyecto_id}")
+def listar_eventos_por_proyecto(
+    proyecto_id: int,
+    user: dict = Depends(require_admin),
+):
+    """Lista eventos de un proyecto especifico. Requiere rol admin."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM eventos WHERE proyecto_id = ? ORDER BY fecha_creacion DESC LIMIT 50",
+            (proyecto_id,),
+        ).fetchall()
+    return [dict(r) for r in rows]

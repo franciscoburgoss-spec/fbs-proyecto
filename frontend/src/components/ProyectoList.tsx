@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useProyectos } from '../hooks/useProyectos'
 import type { ProyectoIn } from '../types'
 
@@ -75,7 +76,11 @@ export default function ProyectoList() {
           {proyectos.map(p => (
             <tr key={p.id} style={{ borderBottom: '1px solid #eee' }}>
               <td style={{ padding: 8 }}>{p.id}</td>
-              <td style={{ padding: 8 }}>{p.nombre}</td>
+              <td style={{ padding: 8 }}>
+                <Link to={`/proyectos/${p.id}`} style={{ color: '#2563eb', textDecoration: 'none', fontWeight: 500 }}>
+                  {p.nombre}
+                </Link>
+              </td>
               <td style={{ padding: 8 }}><code>{p.acronimo}</code></td>
               <td style={{ padding: 8 }}>
                 <span style={{

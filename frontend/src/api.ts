@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Proyecto, ProyectoIn, Documento, DocumentoIn, Usuario, LoginIn, RegisterIn, Token, PasswordChangeIn, PerfilUpdate, Evento, ReporteProyectos, ReporteDocumentos, ReporteGeneral } from './types'
+import type { Proyecto, ProyectoIn, Documento, DocumentoIn, Usuario, LoginIn, RegisterIn, Token, PasswordChangeIn, PerfilUpdate, Evento, ReporteProyectos, ReporteDocumentos, ReporteGeneral, ProyectoDetalle } from './types'
 
 const api = axios.create({
   baseURL: '/api',
@@ -109,5 +109,12 @@ export const exportarCSV = (entidad: 'proyectos' | 'documentos') =>
     link.remove()
     window.URL.revokeObjectURL(url)
   })
+
+// --- Proyecto Detalle ---
+export const obtenerProyectoDetalle = (id: number) =>
+  api.get<ProyectoDetalle>(`/proyectos/${id}/detail`).then(r => r.data)
+
+export const listarEventosPorProyecto = (proyecto_id: number) =>
+  api.get<Evento[]>(`/eventos/por-proyecto/${proyecto_id}`).then(r => r.data)
 
 export default api

@@ -76,11 +76,13 @@ def init_db():
                 usuario_id INTEGER REFERENCES usuarios(id),
                 username TEXT,
                 detalle TEXT,
+                proyecto_id INTEGER,
                 fecha_creacion TEXT DEFAULT (datetime('now'))
             );
             CREATE INDEX IF NOT EXISTS idx_eventos_event ON eventos(event);
             CREATE INDEX IF NOT EXISTS idx_eventos_usuario ON eventos(usuario_id);
             CREATE INDEX IF NOT EXISTS idx_eventos_fecha ON eventos(timestamp);
+            CREATE INDEX IF NOT EXISTS idx_eventos_proyecto ON eventos(proyecto_id);
             """
         )
 

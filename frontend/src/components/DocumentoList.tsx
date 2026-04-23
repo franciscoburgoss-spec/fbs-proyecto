@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useDocumentos } from '../hooks/useDocumentos'
 import { useProyectos } from '../hooks/useProyectos'
 import type { DocumentoIn } from '../types'
@@ -7,7 +8,11 @@ const ESTADOS = ['ING', 'OBS', 'COR', 'APB'] as const
 const ESTADO_NEXT: Record<string, string> = { ING: 'OBS', OBS: 'COR', COR: 'APB' }
 
 export default function DocumentoList() {
-  const [filtros, setFiltros] = useState<{ proyecto_id?: number; etapa?: string; estado?: string; modulo?: string }>({})
+  const [searchParams] = useSearchParams()
+  const proyecto_id = searchParams.get('proyecto_id')
+  const [filtros, setFiltros] = useState<{ proyecto_id?: number; etapa?: string; estado?: string; modulo?: string }>(
+    proyecto_id ? { proyecto_id: Number(proyecto_id) } : {}
+  )
   const { documentos, loading, error, fetch, crear, eliminar, transicionar } = useDocumentos(filtros)
   const { proyectos } = useProyectos()
 

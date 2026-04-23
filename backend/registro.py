@@ -14,6 +14,7 @@ def emit_evento(event: str, **kwargs):
     # Extraer usuario si esta disponible
     usuario_id = kwargs.pop("usuario_id", None)
     username = kwargs.pop("username", None)
+    proyecto_id = kwargs.pop("proyecto_id", None)
 
     entry = {
         "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -32,8 +33,8 @@ def emit_evento(event: str, **kwargs):
     try:
         with get_conn() as conn:
             conn.execute(
-                "INSERT INTO eventos (event, usuario_id, username, detalle) VALUES (?, ?, ?, ?)",
-                (event, usuario_id, username, detalle_json),
+                "INSERT INTO eventos (event, usuario_id, username, detalle, proyecto_id) VALUES (?, ?, ?, ?, ?)",
+                (event, usuario_id, username, detalle_json, proyecto_id),
             )
     except Exception:
         # Si falla la base de datos, no bloquear la operacion principal

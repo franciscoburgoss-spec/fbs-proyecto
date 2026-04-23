@@ -30,6 +30,66 @@ def obtener_proyecto(id: int, user: dict = Depends(require_auth)):
     return dict(row)
 
 
+@router.get("/{id}/detail")
+def obtener_proyecto_detalle(id: int, user: dict = Depends(require_auth)):
+    """Devuelve proyecto completo con sus documentos, estadisticas y eventos recientes."""
+    with get_conn() as conn:
+        # Proyecto
+        row = conn.execute("SELECT * FROM proyectos WHERE id = ?", (id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="proyecto no encontrado")
+        proyecto = dict(row)
+
+        # Documentos del proyecto
+        documentos = conn.execute(
+            "SELECT * FROM documentos WHERE proyecto_id = ? ORDER BY modulo, etapa, nombre",
+            (id,),
+        ).fetchall()
+
+        # Estadisticas de documentos
+        stats_docs = conn.execute(
+            "SELECT estado, COUNT(*) as count FROM documentos WHERE proyecto_id = ? GROUP BY estado ORDER BY count DESC",
+            (id,),
+        ).fetchall()
+
+        # Por modulo
+        por_modulo = conn.execute(
+            "SELECT modulo, COUNT(*) as count FROM documentos WHERE proyecto_id = ? GROUP BY modulo ORDER BY count DESC",
+            (id,),
+        ).fetchall()
+
+        # Por etapa
+        por_etapa = conn.execute(
+            "SELECT etapa, COUNT(*) as count FROM documentos WHERE proyecto_id = ? GROUP BY etapa ORDER BY count DESC",
+            (id,),
+        ).fetchall()
+
+        # Observaciones pendientes
+        observaciones = conn.execute(
+            "SELECT id, nombre, modulo, etapa, observacion FROM documentos WHERE proyecto_id = ? AND estado = 'OBS' ORDER BY fecha_creacion DESC",
+            (id,),
+        ).fetchall()
+
+        # Eventos recientes del proyecto (ultimos 20)
+        eventos = conn.execute(
+            "SELECT * FROM eventos WHERE proyecto_id = ? ORDER BY fecha_creacion DESC LIMIT 20",
+            (id,),
+        ).fetchall()
+
+    return {
+        "proyecto": proyecto,
+        "documentos": [dict(d) for d in documentos],
+        "estadisticas": {
+            "total_documentos": len(documentos),
+            "por_estado": [dict(s) for s in stats_docs],
+            "por_modulo": [dict(m) for m in por_modulo],
+            "por_etapa": [dict(e) for e in por_etapa],
+            "observaciones_pendientes": [dict(o) for o in observaciones],
+        },
+        "eventos_recientes": [dict(e) for e in eventos],
+    }
+
+
 @router.post("", response_model=ProyectoOut, status_code=201)
 def crear_proyecto(data: ProyectoIn, user: dict = Depends(require_admin)):
     with get_conn() as conn:

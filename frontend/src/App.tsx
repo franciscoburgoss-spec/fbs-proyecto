@@ -8,6 +8,7 @@ import DocumentoList from './components/DocumentoList'
 import LoginPage from './components/LoginPage'
 import AdminPage from './components/AdminPage'
 import PerfilPage from './components/PerfilPage'
+import ProyectoDetail from './components/ProyectoDetail'
 import AuditoriaPage from './components/AuditoriaPage'
 
 function AppRoutes() {
@@ -19,6 +20,7 @@ function AppRoutes() {
       <Route element={user ? <Layout /> : <Navigate to="/login" replace />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/proyectos" element={<ProyectoList />} />
+        <Route path="/proyectos/:id" element={<ProyectoDetail />} />
         <Route path="/documentos" element={<DocumentoList />} />
         <Route path="/perfil" element={<PerfilPage />} />
         <Route path="/admin" element={<AdminPage />} />

@@ -114,3 +114,16 @@ export interface ReporteGeneral {
   proyectos_por_etapa: { etapa_actual: string; count: number }[]
   evolucion_proyectos: { mes: string; count: number }[]
 }
+
+export interface ProyectoDetalle {
+  proyecto: Proyecto
+  documentos: Documento[]
+  estadisticas: {
+    total_documentos: number
+    por_estado: { estado: string; count: number }[]
+    por_modulo: { modulo: string; count: number }[]
+    por_etapa: { etapa: string; count: number }[]
+    observaciones_pendientes: { id: number; nombre: string; modulo: string; etapa: string; observacion: string }[]
+  }
+  eventos_recientes: Evento[]
+}
