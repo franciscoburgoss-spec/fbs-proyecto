@@ -25,6 +25,9 @@ source .venv/bin/activate
 
 # Instalar dependencias
 pip install -r requirements.txt
+
+# Hacer ejecutables los scripts nativos
+chmod +x scripts/start.sh scripts/backup.sh
 ```
 
 ## Configuracion
