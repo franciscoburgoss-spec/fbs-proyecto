@@ -92,3 +92,25 @@ export interface Evento {
   detalle: string | null
   fecha_creacion: string
 }
+
+export interface ReporteProyectos {
+  total: number
+  por_etapa: { etapa_actual: string; count: number }[]
+  por_cliente: { cliente: string; count: number }[]
+  recientes: { id: number; nombre: string; acronimo: string; etapa_actual: string; fecha_creacion: string }[]
+}
+
+export interface ReporteDocumentos {
+  total: number
+  por_estado: { estado: string; count: number }[]
+  por_modulo: { modulo: string; count: number }[]
+  por_etapa: { etapa: string; count: number }[]
+  observaciones_pendientes: { id: number; nombre: string; modulo: string; etapa: string; observacion: string; acronimo: string }[]
+}
+
+export interface ReporteGeneral {
+  totales: { proyectos: number; documentos: number; usuarios: number; eventos: number }
+  documentos_por_estado: { estado: string; count: number }[]
+  proyectos_por_etapa: { etapa_actual: string; count: number }[]
+  evolucion_proyectos: { mes: string; count: number }[]
+}

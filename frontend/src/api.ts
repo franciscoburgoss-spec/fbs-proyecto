@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Proyecto, ProyectoIn, Documento, DocumentoIn, Usuario, LoginIn, RegisterIn, Token, PasswordChangeIn, PerfilUpdate, Evento } from './types'
+import type { Proyecto, ProyectoIn, Documento, DocumentoIn, Usuario, LoginIn, RegisterIn, Token, PasswordChangeIn, PerfilUpdate, Evento, ReporteProyectos, ReporteDocumentos, ReporteGeneral } from './types'
 
 const api = axios.create({
   baseURL: '/api',
@@ -87,5 +87,27 @@ export const obtenerStats = async (): Promise<{
   }
   return { total_proyectos: proyectos.length, total_documentos: documentos.length, por_etapa, por_estado }
 }
+
+// --- Reportes ---
+export const obtenerReporteGeneral = () =>
+  api.get<ReporteGeneral>('/reportes/general').then(r => r.data)
+
+export const obtenerReporteProyectos = () =>
+  api.get<ReporteProyectos>('/reportes/proyectos').then(r => r.data)
+
+export const obtenerReporteDocumentos = (proyecto_id?: number) =>
+  api.get<ReporteDocumentos>('/reportes/documentos', { params: proyecto_id ? { proyecto_id } : undefined }).then(r => r.data)
+
+export const exportarCSV = (entidad: 'proyectos' | 'documentos') =>
+  api.get(`/reportes/export/csv?entidad=${entidad}`, { responseType: 'blob' }).then(r => {
+    const url = window.URL.createObjectURL(new Blob([r.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `${entidad}_export.csv`)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  })
 
 export default api

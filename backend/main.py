@@ -2,13 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.database import init_db, seed_data
-from backend.routers import proyectos, documentos, auth, eventos
+from backend.routers import proyectos, documentos, auth, eventos, reportes
 from backend.middleware.spec_errors import register_spec_error_handlers
 
 app = FastAPI(
     title="FBS API",
-    version="1.3.0",
-    description="Backend de gestion de proyectos y documentos con spec_engine, auth JWT, roles y auditoria",
+    version="1.4.0",
+    description="Backend de gestion de proyectos y documentos con spec_engine, auth JWT, roles, auditoria y reportes",
 )
 
 # CORS para frontend React (puerto 5173 en dev, 4173 en preview)
@@ -25,6 +25,7 @@ app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(proyectos.router, prefix="/api/proyectos", tags=["proyectos"])
 app.include_router(documentos.router, prefix="/api/documentos", tags=["documentos"])
 app.include_router(eventos.router, prefix="/api/eventos", tags=["eventos"])
+app.include_router(reportes.router, prefix="/api/reportes", tags=["reportes"])
 
 register_spec_error_handlers(app)
 

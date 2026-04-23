@@ -1,1 +1,1 @@
-from backend.routers import proyectos, documentos, auth, eventos
+from backend.routers import proyectos, documentos, auth, eventos, reportes
