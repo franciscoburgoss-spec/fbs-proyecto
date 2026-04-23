@@ -12,3 +12,8 @@ build/
 *.db-shm
 *.db-wal
 registro/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+*.log
