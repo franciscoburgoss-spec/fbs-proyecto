@@ -1,9 +1,67 @@
-# FBS — Backend
+# FBS — Gestion de Proyectos y Documentos
 
-## Arrancar servidor
+Sistema de gestion de proyectos de ingenieria con maquinas de estado, auditoria de eventos, reportes con graficos y exportacion CSV.
+
+**Version:** 1.5.0  
+**Stack:** FastAPI + SQLite + React + TypeScript + Vite + Recharts
+
+---
+
+## Requisitos (MacBook Air 7,2 compatible)
+
+- Python 3.11+
+- Node.js 18+ (solo para build del frontend)
+- ~200MB RAM en ejecucion (sin Docker)
+
+## Instalacion rapida
 
 ```bash
+git clone https://github.com/franciscoburgoss-spec/fbs-proyecto.git
+cd fbs-proyecto
+pip install -r requirements.txt
+```
+
+## Configuracion
+
+```bash
+cp .env.example .env
+# Edita .env y define al menos JWT_SECRET
+```
+
+## Inicio en produccion local (nativo, sin Docker)
+
+```bash
+# 1. Setear variables de entorno
+export JWT_SECRET="tu-clave-segura-de-32-caracteres-aqui"
+
+# 2. Ejecutar script nativo (build + backup + servidor)
+./scripts/start.sh
+```
+
+El servidor estara disponible en `http://localhost:8000`.
+
+El frontend estatico se sirve desde el mismo proceso de FastAPI (no requiere `npm run dev`).
+
+## Desarrollo (frontend en modo watch)
+
+Si estas modificando el frontend y necesitas hot-reload:
+
+```bash
+# Terminal 1: backend
+export JWT_SECRET="dev-secret-key"
 uvicorn backend.main:app --reload --port 8000
+
+# Terminal 2: frontend dev server
+cd frontend
+npm install
+npm run dev
+# Abre http://localhost:5173
+```
+
+## Backup manual de la base de datos
+
+```bash
+./scripts/backup.sh
 ```
 
 ## Tests
@@ -12,40 +70,20 @@ uvicorn backend.main:app --reload --port 8000
 pytest backend/tests/ -v
 ```
 
-## Lint specs
-
-```bash
-python -m spec_engine.cli_lint specs/
-```
-
 ## Endpoints principales
 
 | Metodo | Endpoint | Descripcion |
 |--------|----------|-------------|
-| GET    | /api/health | Health check |
-| GET    | /api/proyectos | Listar proyectos |
-| POST   | /api/proyectos | Crear proyecto |
-| GET    | /api/proyectos/{id} | Obtener proyecto |
-| PATCH  | /api/proyectos/{id} | Actualizar proyecto |
-| DELETE | /api/proyectos/{id} | Eliminar proyecto |
-| POST   | /api/proyectos/{id}/transicion | Transicionar etapa |
-| GET    | /api/documentos | Listar documentos (con filtros) |
-| POST   | /api/documentos | Crear documento (query: proyecto_id) |
-| GET    | /api/documentos/{id} | Obtener documento |
-| PATCH  | /api/documentos/{id} | Actualizar documento |
-| DELETE | /api/documentos/{id} | Eliminar documento |
-| POST   | /api/documentos/{id}/transicion | Transicionar estado |
+| GET | /api/health | Health check (incluye estado de DB) |
+| POST | /api/auth/login | Login con rate limiting (3 intentos/min) |
+| GET | /api/proyectos | Listar proyectos |
+| GET | /api/proyectos/{id}/detail | Detalle completo con estadisticas |
+| GET | /api/reportes/general | Dashboard general |
+| GET | /api/reportes/export/csv | Exportar proyectos o documentos |
 
----
+## Seguridad incluida
 
-## Invariantes a respetar
-
-|Inv|Texto|Como se verifica en esta sesion|
-|---|-----|------------------------------|
-|I-2|API REST consistente|Routers bajo /api/, schemas Pydantic en request/response|
-|I-3|Errores del spec_engine se traducen a HTTP|middleware/spec_errors.py captura TransitionError -> JSONResponse|
-|I-4|Todo cambio genera evento JSONL|emit_evento() en cada POST/PATCH/DELETE de routers|
-|I-5|Frontend puede consumir API|CORS habilitado para localhost:5173/4173|
-|I-7|acronimo no se modifica|ProyectoUpdate no incluye acronimo, schema lo ignora|
-|I-10|Queries parametrizadas|Todos los execute() en routers usan placeholders ?|
-|I-13|Transiciones via spec_engine|routers usan get_validator() de domain engines|
+- JWT_SECRET obligatorio (sin fallback)
+- Rate limiting en login: 3 intentos por minuto por IP
+- Headers de seguridad HTTP (X-Frame-Options, X-Content-Type-Options, etc.)
+- CORS configurable via `FBS_CORS_ORIGINS`

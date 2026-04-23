@@ -1,7 +1,8 @@
 import os
 import sqlite3
+import time
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -15,9 +16,12 @@ from backend.schemas.auth import (
 
 router = APIRouter()
 
-SECRET_KEY = os.environ.get("JWT_SECRET", "fbs-dev-secret-key-cambiar-en-produccion")
+SECRET_KEY = os.environ.get("JWT_SECRET")
+if not SECRET_KEY:
+    raise RuntimeError("JWT_SECRET environment variable is required. Set it before starting the server.")
+
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 horas
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("JWT_EXPIRE_MINUTES", "1440"))  # 24h por defecto
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
@@ -106,9 +110,53 @@ def register(data: RegisterIn):
     return dict(row)
 
 
+# Rate limiting en memoria: {ip: {"count": int, "first": timestamp}}
+_login_attempts: dict = {}
+MAX_LOGIN_ATTEMPTS = 3
+LOGIN_WINDOW_SECONDS = 60
+
+
+def _check_rate_limit(ip: str):
+    now = time.time()
+    entry = _login_attempts.get(ip)
+    if entry:
+        if now - entry["first"] > LOGIN_WINDOW_SECONDS:
+            _login_attempts[ip] = {"count": 0, "first": now}
+            return
+        if entry["count"] >= MAX_LOGIN_ATTEMPTS:
+            raise HTTPException(
+                status_code=429,
+                detail="Demasiados intentos de login. Espera 1 minuto."
+            )
+    else:
+        _login_attempts[ip] = {"count": 0, "first": now}
+
+
+def _record_failed_attempt(ip: str):
+    now = time.time()
+    entry = _login_attempts.get(ip)
+    if entry:
+        if now - entry["first"] > LOGIN_WINDOW_SECONDS:
+            _login_attempts[ip] = {"count": 1, "first": now}
+        else:
+            entry["count"] += 1
+    else:
+        _login_attempts[ip] = {"count": 1, "first": now}
+
+
+def _get_client_ip(request) -> str:
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
 @router.post("/login", response_model=Token)
-def login(data: LoginIn):
-    """Login con JSON. Devuelve JWT."""
+def login(data: LoginIn, request: Request):
+    """Login con JSON. Devuelve JWT. Rate limit: 3 intentos por minuto por IP."""
+    ip = _get_client_ip(request)
+    _check_rate_limit(ip)
+
     with get_conn() as conn:
         row = conn.execute(
             "SELECT * FROM usuarios WHERE username = ?",
@@ -116,6 +164,7 @@ def login(data: LoginIn):
         ).fetchone()
 
     if not row or not verify_password(data.password, row["password_hash"]):
+        _record_failed_attempt(ip)
         raise HTTPException(status_code=401, detail="credenciales invalidas")
 
     access_token = create_access_token(data={"sub": str(row["id"])})
