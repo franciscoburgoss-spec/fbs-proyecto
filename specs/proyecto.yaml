@@ -1,0 +1,22 @@
+id: SPEC-PROY
+spec_version: 1
+schema_version: "1.0"
+entity: proyecto
+
+states:
+  CHK: { initial: true }
+  R1:  {}
+  R2:  {}
+  R3:  {}
+  APB: { terminal: true }
+
+transitions:
+  - { from: CHK, to: R1,  event: etapa_avanzada,  guards: [todos_docs_etapa_apb] }
+  - { from: R1,  to: R2,  event: etapa_avanzada,  guards: [todos_docs_etapa_apb] }
+  - { from: R2,  to: R3,  event: etapa_avanzada,  guards: [todos_docs_etapa_apb] }
+  - { from: R3,  to: APB, event: proyecto_cerrado, guards: [todos_docs_apb] }
+
+errors:
+  invalid_transition: { code: PROYECTO_TRANSITION_INVALID, http: 422 }
+  guard_failed:       { code: DOCS_PENDIENTES,             http: 409 }
+  state_unknown:      { code: VALIDATION_FAILED,           http: 422 }

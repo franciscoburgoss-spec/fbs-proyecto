@@ -1,0 +1,22 @@
+id: SPEC-002
+spec_version: 1
+schema_version: "1.0"
+entity: documento
+
+states:
+  ING: { initial: true, terminal: false }
+  OBS: { terminal: false }
+  COR: { terminal: false }
+  APB: { terminal: true }
+
+transitions:
+  - { from: ING, to: OBS, event: estado_cambiado, payload: [observacion] }
+  - { from: OBS, to: COR, event: estado_cambiado }
+  - { from: COR, to: APB, event: doc_aprobado }
+  - { from: COR, to: OBS, event: estado_cambiado, payload: [observacion] }
+
+errors:
+  invalid_transition: { code: DOC_TRANSITION_INVALID, http: 422 }
+  guard_failed:       { code: TRANSITION_GUARD_FAILED, http: 422 }
+  missing_payload:    { code: VALIDATION_FAILED, http: 422 }
+  state_unknown:      { code: VALIDATION_FAILED, http: 422 }
