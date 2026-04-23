@@ -6,7 +6,7 @@ from backend.database import get_conn
 from backend.schemas.proyecto import ProyectoOut, ProyectoIn, ProyectoUpdate
 from backend.domain.proyecto_engine import get_validator
 from backend.registro import emit_evento
-from backend.routers.auth import require_auth
+from backend.routers.auth import require_auth, require_admin
 from spec_engine.validator import TransitionError
 
 router = APIRouter()
@@ -31,7 +31,7 @@ def obtener_proyecto(id: int, user: dict = Depends(require_auth)):
 
 
 @router.post("", response_model=ProyectoOut, status_code=201)
-def crear_proyecto(data: ProyectoIn, user: dict = Depends(require_auth)):
+def crear_proyecto(data: ProyectoIn, user: dict = Depends(require_admin)):
     with get_conn() as conn:
         try:
             cursor = conn.execute(
@@ -79,7 +79,7 @@ def actualizar_proyecto(id: int, data: ProyectoUpdate, user: dict = Depends(requ
 
 
 @router.delete("/{id}", status_code=204)
-def eliminar_proyecto(id: int, user: dict = Depends(require_auth)):
+def eliminar_proyecto(id: int, user: dict = Depends(require_admin)):
     with get_conn() as conn:
         row = conn.execute("SELECT id FROM proyectos WHERE id = ?", (id,)).fetchone()
         if not row:

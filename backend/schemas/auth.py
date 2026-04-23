@@ -33,3 +33,12 @@ class Token(BaseModel):
 
 class TokenPayload(BaseModel):
     sub: Optional[str] = None
+
+
+class PasswordChangeIn(BaseModel):
+    current_password: str
+    new_password: str
+
+
+class PerfilUpdate(BaseModel):
+    email: Optional[EmailStr] = None

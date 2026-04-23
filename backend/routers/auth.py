@@ -8,7 +8,10 @@ from passlib.context import CryptContext
 from typing import Optional
 
 from backend.database import get_conn
-from backend.schemas.auth import UsuarioOut, RegisterIn, LoginIn, Token, TokenPayload
+from backend.schemas.auth import (
+    UsuarioOut, RegisterIn, LoginIn, Token, TokenPayload,
+    PasswordChangeIn, PerfilUpdate,
+)
 
 router = APIRouter()
 
@@ -66,6 +69,16 @@ def require_auth(user: Optional[dict] = Depends(get_current_user)) -> dict:
     return user
 
 
+def require_admin(user: dict = Depends(require_auth)) -> dict:
+    """Dependencia: requiere rol admin. Lanza 403 si no es admin."""
+    if user.get("rol") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Requiere rol administrador",
+        )
+    return user
+
+
 @router.post("/register", response_model=UsuarioOut, status_code=201)
 def register(data: RegisterIn):
     """Registro de nuevo usuario. El primer usuario registrado sera admin si no hay ninguno."""
@@ -113,3 +126,93 @@ def login(data: LoginIn):
 def me(user: dict = Depends(require_auth)):
     """Devuelve info del usuario autenticado."""
     return user
+
+
+# --- Administracion de usuarios (solo admin) ---
+
+@router.get("/users", response_model=list[UsuarioOut])
+def listar_usuarios(user: dict = Depends(require_admin)):
+    """Lista todos los usuarios. Solo admin."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT id, username, email, rol, activo, fecha_creacion FROM usuarios ORDER BY id"
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+@router.patch("/users/{id}/rol", response_model=UsuarioOut)
+def cambiar_rol(id: int, body: dict, user: dict = Depends(require_admin)):
+    """Cambia el rol de un usuario. Body: {'rol': 'admin'|'user'}."""
+    nuevo_rol = body.get("rol")
+    if nuevo_rol not in ("admin", "user"):
+        raise HTTPException(status_code=422, detail="rol debe ser 'admin' o 'user'")
+
+    with get_conn() as conn:
+        row = conn.execute("SELECT id FROM usuarios WHERE id = ?", (id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="usuario no encontrado")
+
+        conn.execute("UPDATE usuarios SET rol = ? WHERE id = ?", (nuevo_rol, id))
+        row = conn.execute(
+            "SELECT id, username, email, rol, activo, fecha_creacion FROM usuarios WHERE id = ?",
+            (id,)
+        ).fetchone()
+    return dict(row)
+
+
+@router.patch("/users/{id}/activar", response_model=UsuarioOut)
+def toggle_activo(id: int, user: dict = Depends(require_admin)):
+    """Activa o desactiva un usuario (toggle del campo activo)."""
+    with get_conn() as conn:
+        row = conn.execute("SELECT id, activo FROM usuarios WHERE id = ?", (id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="usuario no encontrado")
+
+        # No permitir desactivarse a si mismo
+        if id == user["id"]:
+            raise HTTPException(status_code=400, detail="No puedes desactivarte a ti mismo")
+
+        nuevo_estado = 0 if row["activo"] else 1
+        conn.execute("UPDATE usuarios SET activo = ? WHERE id = ?", (nuevo_estado, id))
+        row = conn.execute(
+            "SELECT id, username, email, rol, activo, fecha_creacion FROM usuarios WHERE id = ?",
+            (id,)
+        ).fetchone()
+    return dict(row)
+
+
+# --- Perfil propio ---
+
+@router.patch("/me", response_model=UsuarioOut)
+def actualizar_perfil(data: PerfilUpdate, user: dict = Depends(require_auth)):
+    """Actualiza el email del usuario autenticado."""
+    if data.email is None:
+        raise HTTPException(status_code=422, detail="no se envio ningun campo editable")
+
+    with get_conn() as conn:
+        try:
+            conn.execute("UPDATE usuarios SET email = ? WHERE id = ?", (data.email, user["id"]))
+        except sqlite3.IntegrityError:
+            raise HTTPException(status_code=409, detail="email ya existe")
+
+        row = conn.execute(
+            "SELECT id, username, email, rol, activo, fecha_creacion FROM usuarios WHERE id = ?",
+            (user["id"],)
+        ).fetchone()
+    return dict(row)
+
+
+@router.post("/me/password")
+def cambiar_password(data: PasswordChangeIn, user: dict = Depends(require_auth)):
+    """Cambia la contraseña del usuario autenticado."""
+    with get_conn() as conn:
+        row = conn.execute("SELECT password_hash FROM usuarios WHERE id = ?", (user["id"],)).fetchone()
+
+    if not verify_password(data.current_password, row["password_hash"]):
+        raise HTTPException(status_code=401, detail="contraseña actual incorrecta")
+
+    nuevo_hash = get_password_hash(data.new_password)
+    with get_conn() as conn:
+        conn.execute("UPDATE usuarios SET password_hash = ? WHERE id = ?", (nuevo_hash, user["id"]))
+
+    return {"detail": "contraseña actualizada"}

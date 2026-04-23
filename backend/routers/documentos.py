@@ -5,7 +5,7 @@ from backend.database import get_conn
 from backend.schemas.documento import DocumentoOut, DocumentoIn, TransicionIn
 from backend.domain.documento_engine import get_validator
 from backend.registro import emit_evento
-from backend.routers.auth import require_auth
+from backend.routers.auth import require_auth, require_admin
 from spec_engine.validator import TransitionError
 
 router = APIRouter()
@@ -111,7 +111,7 @@ def actualizar_documento(id: int, data: dict, user: dict = Depends(require_auth)
 
 
 @router.delete("/{id}", status_code=204)
-def eliminar_documento(id: int, user: dict = Depends(require_auth)):
+def eliminar_documento(id: int, user: dict = Depends(require_admin)):
     with get_conn() as conn:
         row = conn.execute("SELECT id FROM documentos WHERE id = ?", (id,)).fetchone()
         if not row:

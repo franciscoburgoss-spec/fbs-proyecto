@@ -7,8 +7,8 @@ from backend.middleware.spec_errors import register_spec_error_handlers
 
 app = FastAPI(
     title="FBS API",
-    version="1.1.0",
-    description="Backend de gestion de proyectos y documentos con spec_engine y auth JWT",
+    version="1.2.0",
+    description="Backend de gestion de proyectos y documentos con spec_engine, auth JWT y roles",
 )
 
 # CORS para frontend React (puerto 5173 en dev, 4173 en preview)

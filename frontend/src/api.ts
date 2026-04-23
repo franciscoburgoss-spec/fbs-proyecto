@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Proyecto, ProyectoIn, Documento, DocumentoIn, Usuario, LoginIn, RegisterIn, Token } from './types'
+import type { Proyecto, ProyectoIn, Documento, DocumentoIn, Usuario, LoginIn, RegisterIn, Token, PasswordChangeIn, PerfilUpdate } from './types'
 
 const api = axios.create({
   baseURL: '/api',
@@ -24,6 +24,23 @@ export const register = (data: RegisterIn) =>
 
 export const obtenerPerfil = () =>
   api.get<Usuario>('/auth/me').then(r => r.data)
+
+// --- Admin (requiere rol admin) ---
+export const listarUsuarios = () =>
+  api.get<Usuario[]>('/auth/users').then(r => r.data)
+
+export const cambiarRol = (id: number, rol: 'admin' | 'user') =>
+  api.patch<Usuario>(`/auth/users/${id}/rol`, { rol }).then(r => r.data)
+
+export const toggleActivo = (id: number) =>
+  api.patch<Usuario>(`/auth/users/${id}/activar`).then(r => r.data)
+
+// --- Perfil propio ---
+export const actualizarPerfil = (data: PerfilUpdate) =>
+  api.patch<Usuario>('/auth/me', data).then(r => r.data)
+
+export const cambiarPassword = (data: PasswordChangeIn) =>
+  api.post('/auth/me/password', data).then(r => r.data)
 
 // --- Proyectos ---
 export const listarProyectos = () => api.get<Proyecto[]>('/proyectos').then(r => r.data)

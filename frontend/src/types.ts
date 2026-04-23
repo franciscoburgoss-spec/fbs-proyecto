@@ -73,3 +73,12 @@ export interface Token {
   access_token: string
   token_type: string
 }
+
+export interface PasswordChangeIn {
+  current_password: string
+  new_password: string
+}
+
+export interface PerfilUpdate {
+  email?: string
+}
