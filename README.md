@@ -18,6 +18,12 @@ Sistema de gestion de proyectos de ingenieria con maquinas de estado, auditoria 
 ```bash
 git clone https://github.com/franciscoburgoss-spec/fbs-proyecto.git
 cd fbs-proyecto
+
+# Crear y activar entorno virtual (venv)
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Instalar dependencias
 pip install -r requirements.txt
 ```
 
@@ -47,7 +53,8 @@ El frontend estatico se sirve desde el mismo proceso de FastAPI (no requiere `np
 Si estas modificando el frontend y necesitas hot-reload:
 
 ```bash
-# Terminal 1: backend
+# Terminal 1: backend (con venv activado)
+source .venv/bin/activate
 export JWT_SECRET="dev-secret-key"
 uvicorn backend.main:app --reload --port 8000
 
@@ -67,6 +74,7 @@ npm run dev
 ## Tests
 
 ```bash
+source .venv/bin/activate
 pytest backend/tests/ -v
 ```
 

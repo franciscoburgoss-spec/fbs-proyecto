@@ -7,6 +7,20 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
+# Activar entorno virtual si existe
+VENV_DIR="$PROJECT_DIR/.venv"
+if [ -d "$VENV_DIR" ] && [ -f "$VENV_DIR/bin/activate" ]; then
+    source "$VENV_DIR/bin/activate"
+    echo "Entorno virtual activado: $VENV_DIR"
+else
+    echo "WARNING: No se encontro entorno virtual en $VENV_DIR"
+    echo "Crealo antes de ejecutar este script:"
+    echo "  python3 -m venv .venv"
+    echo "  source .venv/bin/activate"
+    echo "  pip install -r requirements.txt"
+    echo ""
+fi
+
 # Configuracion por defecto (sobrescribible via env)
 export FBS_DB_PATH="${FBS_DB_PATH:-$HOME/.fbs/fbs.db}"
 export FBS_HISTORIAL_PATH="${FBS_HISTORIAL_PATH:-$HOME/.fbs/registro/historial.jsonl}"
@@ -51,4 +65,4 @@ echo "Presiona Ctrl+C para detener."
 echo ""
 
 cd "$PROJECT_DIR"
-exec uvicorn backend.main:app --host 0.0.0.0 --port "$UVICORN_PORT" --workers 1
+exec python3 -m uvicorn backend.main:app --host 0.0.0.0 --port "$UVICORN_PORT" --workers 1
