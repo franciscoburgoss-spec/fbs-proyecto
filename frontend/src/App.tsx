@@ -8,6 +8,7 @@ import DocumentoList from './components/DocumentoList'
 import LoginPage from './components/LoginPage'
 import AdminPage from './components/AdminPage'
 import PerfilPage from './components/PerfilPage'
+import AuditoriaPage from './components/AuditoriaPage'
 
 function AppRoutes() {
   const { user, loading } = useAuth()
@@ -21,6 +22,7 @@ function AppRoutes() {
         <Route path="/documentos" element={<DocumentoList />} />
         <Route path="/perfil" element={<PerfilPage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/auditoria" element={<AuditoriaPage />} />
       </Route>
     </Routes>
   )

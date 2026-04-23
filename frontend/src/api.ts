@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Proyecto, ProyectoIn, Documento, DocumentoIn, Usuario, LoginIn, RegisterIn, Token, PasswordChangeIn, PerfilUpdate } from './types'
+import type { Proyecto, ProyectoIn, Documento, DocumentoIn, Usuario, LoginIn, RegisterIn, Token, PasswordChangeIn, PerfilUpdate, Evento } from './types'
 
 const api = axios.create({
   baseURL: '/api',
@@ -41,6 +41,13 @@ export const actualizarPerfil = (data: PerfilUpdate) =>
 
 export const cambiarPassword = (data: PasswordChangeIn) =>
   api.post('/auth/me/password', data).then(r => r.data)
+
+// --- Auditoria (requiere rol admin) ---
+export const listarEventos = (params?: { event?: string; usuario_id?: number; desde?: string; hasta?: string; limit?: number; offset?: number }) =>
+  api.get<Evento[]>('/eventos', { params }).then(r => r.data)
+
+export const obtenerStatsEventos = (params?: { desde?: string; hasta?: string }) =>
+  api.get<{ total: number; por_tipo: { event: string; count: number }[] }>('/eventos/stats', { params }).then(r => r.data)
 
 // --- Proyectos ---
 export const listarProyectos = () => api.get<Proyecto[]>('/proyectos').then(r => r.data)

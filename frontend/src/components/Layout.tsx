@@ -46,6 +46,21 @@ export default function Layout() {
               Admin
             </NavLink>
           )}
+          {user?.rol === 'admin' && (
+            <NavLink
+              to="/auditoria"
+              style={({ isActive }) => ({
+                padding: '8px 12px',
+                borderRadius: 4,
+                textDecoration: 'none',
+                color: isActive ? '#fff' : '#374151',
+                background: isActive ? '#2563eb' : '#f3f4f6',
+                fontWeight: 600,
+              })}
+            >
+              Auditoria
+            </NavLink>
+          )}
         </nav>
 
         {/* Footer del sidebar con usuario y logout */}

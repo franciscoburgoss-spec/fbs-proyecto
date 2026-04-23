@@ -68,6 +68,19 @@ def init_db():
                 activo INTEGER NOT NULL DEFAULT 1,
                 fecha_creacion TEXT DEFAULT (datetime('now'))
             );
+
+            CREATE TABLE IF NOT EXISTS eventos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT DEFAULT (datetime('now')),
+                event TEXT NOT NULL,
+                usuario_id INTEGER REFERENCES usuarios(id),
+                username TEXT,
+                detalle TEXT,
+                fecha_creacion TEXT DEFAULT (datetime('now'))
+            );
+            CREATE INDEX IF NOT EXISTS idx_eventos_event ON eventos(event);
+            CREATE INDEX IF NOT EXISTS idx_eventos_usuario ON eventos(usuario_id);
+            CREATE INDEX IF NOT EXISTS idx_eventos_fecha ON eventos(timestamp);
             """
         )
 

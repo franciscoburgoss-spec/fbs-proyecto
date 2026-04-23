@@ -82,3 +82,13 @@ export interface PasswordChangeIn {
 export interface PerfilUpdate {
   email?: string
 }
+
+export interface Evento {
+  id: number
+  timestamp: string
+  event: string
+  usuario_id: number | null
+  username: string | null
+  detalle: string | null
+  fecha_creacion: string
+}
