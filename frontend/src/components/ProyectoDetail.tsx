@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useProyectoDetail } from '../hooks/useProyectoDetail'
 import ExportButton from './ExportButton'
 import {
@@ -11,11 +11,8 @@ const ESTADO_LABELS: Record<string, string> = { ING: 'Ingreso', OBS: 'Observado'
 const ESTADO_BG: Record<string, string> = { ING: '#fef3c7', OBS: '#fee2e2', COR: '#dbeafe', APB: '#dcfce7' }
 const ESTADO_COLOR: Record<string, string> = { ING: '#92400e', OBS: '#991b1b', COR: '#1e40af', APB: '#166534' }
 
-const ETAPAS = ['CHK', 'R1', 'R2', 'R3', 'APB'] as const
-
 export default function ProyectoDetail() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { detalle, loading, error, cargarDetalle } = useProyectoDetail()
 
   useEffect(() => {
@@ -27,10 +24,6 @@ export default function ProyectoDetail() {
   if (!detalle) return null
 
   const { proyecto, documentos, estadisticas, eventos_recientes } = detalle
-  const nextEtapa = (etapa: string) => {
-    const idx = ETAPAS.indexOf(etapa as any)
-    return idx < ETAPAS.length - 1 ? ETAPAS[idx + 1] : null
-  }
 
   return (
     <div>

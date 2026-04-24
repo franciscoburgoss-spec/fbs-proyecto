@@ -8,7 +8,6 @@ import {
 } from 'recharts'
 
 const COLORS_ESTADO = ['#3b82f6', '#f59e0b', '#10b981', '#ef4444']
-const COLORS_ETAPA = ['#6366f1', '#8b5cf6', '#ec4899', '#14b8a6']
 
 const ETAPA_LABELS: Record<string, string> = {
   CHK: 'Chk',
