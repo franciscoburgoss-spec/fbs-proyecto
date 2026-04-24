@@ -170,13 +170,13 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
                     <p className="text-xs text-[#d1d5db] italic pl-4">No transitions recorded</p>
                   </div>
 
-                  {/* Available Transitions */}
-                  {transiciones.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-1.5 mb-2">
-                        <span className="text-[11px] text-[#9ca3af]">&#8594;</span>
-                        <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-[0.5px]">Available Transitions</span>
-                      </div>
+                  {/* Available Transitions - always shown */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <span className="text-[11px] text-[#9ca3af]">&#8594;</span>
+                      <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-[0.5px]">Available Transitions</span>
+                    </div>
+                    {transiciones.length > 0 ? (
                       <div className="flex gap-2 pl-4 flex-wrap">
                         {transiciones.map((t) => {
                           const tgt = STATUS_META[t.hacia] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]', border: 'border-[#e5e7eb]' }
@@ -196,8 +196,10 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
                           )
                         })}
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <p className="text-xs text-[#9ca3af] italic pl-4">Terminal state — no transitions available</p>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
