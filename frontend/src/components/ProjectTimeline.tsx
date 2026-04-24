@@ -24,7 +24,6 @@ export default function ProjectTimeline({ etapaActual }: ProjectTimelineProps) {
         {ETAPAS.map((etapa, index) => {
           const isCompleted = index < currentIndex
           const isCurrent = index === currentIndex
-          const isFuture = index > currentIndex
 
           const bgColor = isCompleted
             ? '#10b981'

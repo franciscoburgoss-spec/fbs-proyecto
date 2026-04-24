@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useAdmin } from '../hooks/useAdmin'
 
 export default function UsersRolesPage() {
-  const { usuarios, loading, cambiarRol } = useAdmin()
+  const { usuarios, loading, cambiarRolUsuario } = useAdmin()
   const [busqueda, setBusqueda] = useState('')
 
   const filtrados = usuarios.filter((u) =>
@@ -84,7 +84,7 @@ export default function UsersRolesPage() {
                 </td>
                 <td style={{ padding: '10px 12px' }}>
                   <button
-                    onClick={() => cambiarRol(u.id, u.rol === 'admin' ? 'user' : 'admin')}
+                    onClick={() => cambiarRolUsuario(u.id, u.rol === 'admin' ? 'user' : 'admin')}
                     style={{
                       padding: '4px 10px',
                       fontSize: 12,
