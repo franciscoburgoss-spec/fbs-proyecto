@@ -180,15 +180,16 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
                       <div className="flex gap-2 pl-4 flex-wrap">
                         {transiciones.map((t) => {
                           const tgt = STATUS_META[t.hacia] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]', border: 'border-[#e5e7eb]' }
+                          const src = STATUS_META[t.desde] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]', border: 'border-[#e5e7eb]' }
                           return (
                             <button
                               key={t.hacia}
                               onClick={(e) => { e.stopPropagation(); onAction && onAction(doc) }}
-                              className={`flex items-center gap-1 px-2 py-[3px] rounded text-[11px] font-semibold border cursor-pointer hover:opacity-80 transition-opacity leading-4 ${tgt.bg} ${tgt.text} ${tgt.border}`}
+                              className="flex items-center gap-1 px-2 py-[3px] rounded text-[11px] font-semibold border border-[#e5e7eb] bg-white cursor-pointer hover:bg-[#fafafa] transition-colors leading-4"
                             >
-                              <span className="text-[10px] font-bold text-[#6b7280]">{t.desde}</span>
+                              <span className={`text-[10px] font-bold px-1 py-[1px] rounded ${src.bg} ${src.text} ${src.border} border`}>{t.desde}</span>
                               <span className="text-[10px] text-[#9ca3af]">&#8594;</span>
-                              <span className="text-[10px] font-bold">{t.hacia}</span>
+                              <span className={`text-[10px] font-bold px-1 py-[1px] rounded ${tgt.bg} ${tgt.text} ${tgt.border} border`}>{t.hacia}</span>
                               {t.requiereObservacion && (
                                 <span className="text-[9px] text-[#9ca3af] ml-0.5">(needs observacion)</span>
                               )}
