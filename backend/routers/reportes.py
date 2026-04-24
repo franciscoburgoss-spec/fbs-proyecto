@@ -68,10 +68,16 @@ def reporte_documentos(
             ([proyecto_id] if proyecto_id else []),
         ).fetchall()
 
+        por_modulo_estado = conn.execute(
+            f"SELECT modulo, estado, COUNT(*) as count FROM documentos{where} GROUP BY modulo, estado",
+            params,
+        ).fetchall()
+
     return {
         "total": total,
         "por_estado": [dict(r) for r in por_estado],
         "por_modulo": [dict(r) for r in por_modulo],
+        "por_modulo_estado": [dict(r) for r in por_modulo_estado],
         "por_etapa": [dict(r) for r in por_etapa],
         "observaciones_pendientes": [dict(r) for r in observaciones],
     }

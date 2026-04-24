@@ -5,72 +5,82 @@ interface ProjectTimelineProps {
 const ETAPAS = ['CHK', 'R1', 'R2', 'R3', 'APB']
 
 const ETAPA_LABELS: Record<string, string> = {
-  CHK: 'CHK',
-  R1: 'R1',
-  R2: 'R2',
-  R3: 'R3',
-  APB: 'APB',
+  CHK: 'Check',
+  R1: 'Review 1',
+  R2: 'Review 2',
+  R3: 'Review 3',
+  APB: 'Approved',
 }
 
 export default function ProjectTimeline({ etapaActual }: ProjectTimelineProps) {
   const currentIndex = ETAPAS.indexOf(etapaActual)
 
   return (
-    <div style={{ padding: 16 }}>
-      <h3 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 600, color: '#374151' }}>
+    <div style={{ padding: 20 }}>
+      <h3 style={{ margin: '0 0 20px', fontSize: 13, fontWeight: 700, color: '#374151', textTransform: 'uppercase', letterSpacing: 0.5 }}>
         Project Status Timeline
       </h3>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
         {ETAPAS.map((etapa, index) => {
           const isCompleted = index < currentIndex
           const isCurrent = index === currentIndex
-
-          const bgColor = isCompleted
-            ? '#10b981'
-            : isCurrent
-            ? '#3b82f6'
-            : '#e5e7eb'
-          const textColor = isCompleted || isCurrent ? '#fff' : '#9ca3af'
-          const borderColor = isCurrent ? '#3b82f6' : 'transparent'
+          const isFuture = index > currentIndex
 
           return (
-            <div key={etapa} style={{ display: 'flex', alignItems: 'center' }}>
+            <div key={etapa} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {/* Circle */}
               <div
                 style={{
-                  width: 36,
-                  height: 36,
+                  width: 28,
+                  height: 28,
                   borderRadius: '50%',
-                  background: bgColor,
-                  color: textColor,
+                  background: isCompleted ? '#10b981' : isCurrent ? '#3b82f6' : '#f3f4f6',
+                  color: isCompleted || isCurrent ? '#fff' : '#9ca3af',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: 700,
-                  border: isCurrent ? '3px solid #93c5fd' : '2px solid ' + borderColor,
-                  boxShadow: isCurrent ? '0 0 0 4px #dbeafe' : 'none',
-                  transition: 'all 0.2s',
+                  border: isFuture ? '2px solid #e5e7eb' : 'none',
+                  flexShrink: 0,
                 }}
-                title={ETAPA_LABELS[etapa]}
               >
-                {etapa}
+                {isCompleted ? '✓' : isCurrent ? '●' : index + 1}
               </div>
+
+              {/* Label */}
+              <div style={{ flex: 1, padding: '10px 0' }}>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: isCurrent ? 600 : 400,
+                    color: isCurrent ? '#111827' : isCompleted ? '#374151' : '#9ca3af',
+                  }}
+                >
+                  {ETAPA_LABELS[etapa]}
+                </div>
+                <div style={{ fontSize: 11, color: isCompleted ? '#10b981' : isCurrent ? '#3b82f6' : '#d1d5db', marginTop: 2 }}>
+                  {isCompleted ? 'Completed' : isCurrent ? 'In Progress' : 'Pending'}
+                </div>
+              </div>
+
+              {/* Connector line (except last) */}
               {index < ETAPAS.length - 1 && (
                 <div
                   style={{
-                    width: 24,
-                    height: 2,
+                    position: 'absolute',
+                    left: 34,
+                    marginTop: 34,
+                    width: 2,
+                    height: 24,
                     background: isCompleted ? '#10b981' : '#e5e7eb',
-                    margin: '0 4px',
                   }}
                 />
               )}
             </div>
           )
         })}
-      </div>
-      <div style={{ marginTop: 12, fontSize: 12, color: '#6b7280' }}>
-        Etapa actual: <strong style={{ color: '#374151' }}>{ETAPA_LABELS[etapaActual] || etapaActual}</strong>
       </div>
     </div>
   )

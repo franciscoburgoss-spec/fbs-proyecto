@@ -104,6 +104,7 @@ export interface ReporteDocumentos {
   total: number
   por_estado: { estado: string; count: number }[]
   por_modulo: { modulo: string; count: number }[]
+  por_modulo_estado: { modulo: string; estado: string; count: number }[]
   por_etapa: { etapa: string; count: number }[]
   observaciones_pendientes: { id: number; nombre: string; modulo: string; etapa: string; observacion: string; acronimo: string }[]
 }

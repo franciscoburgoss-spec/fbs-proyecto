@@ -1,23 +1,23 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { useProyectoActivoContext } from '../context/ProyectoActivoContext'
 import ProjectSelector from './ProjectSelector'
-import { useProyectoActivo } from '../hooks/useProyectoActivo'
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: '📊' },
-  { to: '/documents', label: 'Documents', icon: '📄' },
-  { to: '/modules', label: 'Modules', icon: '📦' },
-  { to: '/tasks', label: 'My Tasks', icon: '✅' },
-  { to: '/users', label: 'Users & Roles', icon: '👥' },
-  { to: '/settings', label: 'Settings', icon: '⚙️' },
+  { to: '/', label: 'Dashboard', icon: '□' },
+  { to: '/documents', label: 'Documents', icon: '▤' },
+  { to: '/modules', label: 'Modules', icon: '▦' },
+  { to: '/tasks', label: 'My Tasks', icon: '▣' },
+  { to: '/users', label: 'Users & Roles', icon: '▧' },
+  { to: '/settings', label: 'Settings', icon: '▨' },
 ]
 
 function Breadcrumb() {
   const location = useLocation()
   const parts = location.pathname.split('/').filter(Boolean)
-  if (parts.length === 0) return <span style={{ color: '#6b7280', fontSize: 13 }}>Dashboard</span>
 
   const labels: Record<string, string> = {
+    '': 'Dashboard',
     documents: 'Documents',
     modules: 'Modules',
     tasks: 'My Tasks',
@@ -25,89 +25,89 @@ function Breadcrumb() {
     settings: 'Settings',
   }
 
+  const current = labels[parts[0] || ''] || 'Dashboard'
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#6b7280' }}>
-      <span>Dashboard</span>
-      <span>/</span>
-      <span style={{ color: '#374151', fontWeight: 500 }}>
-        {labels[parts[0]] || parts[0]}
-      </span>
-      {parts[1] && (
-        <>
-          <span>/</span>
-          <span style={{ color: '#374151' }}>{parts[1]}</span>
-        </>
-      )}
+      <span style={{ color: '#9ca3af' }}>Dashboard</span>
+      <span style={{ color: '#d1d5db' }}>/</span>
+      <span style={{ color: '#6b7280' }}>Projects</span>
+      <span style={{ color: '#d1d5db' }}>/</span>
+      <span style={{ color: '#374151', fontWeight: 500 }}>{current}</span>
     </div>
   )
 }
 
 export default function Layout() {
   const { user, logout } = useAuth()
-  const { proyectoActivoId, cambiarProyecto } = useProyectoActivo()
+  const { proyectoActivoId, cambiarProyecto } = useProyectoActivoContext()
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#f8fafc' }}>
+    <div style={{ display: 'flex', height: '100vh', background: '#f8f9fa', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       {/* Sidebar */}
       <aside
         style={{
-          width: 220,
-          background: '#1e293b',
-          padding: '20px 0',
+          width: 240,
+          background: '#f8f9fa',
+          borderRight: '1px solid #e5e7eb',
+          padding: '24px 16px',
           display: 'flex',
           flexDirection: 'column',
-          color: '#fff',
           flexShrink: 0,
         }}
       >
-        <div style={{ padding: '0 20px 20px', borderBottom: '1px solid #334155' }}>
-          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, letterSpacing: 1 }}>FBS</h2>
-          <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94a3b8' }}>Document Control System</p>
+        <div style={{ marginBottom: 32 }}>
+          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#111827', letterSpacing: 0.5 }}>FBS</h2>
+          <p style={{ margin: '4px 0 0', fontSize: 11, color: '#9ca3af' }}>Document Control System</p>
         </div>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '16px 12px', flex: 1 }}>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
+              end={item.to === '/'}
               style={({ isActive }) => ({
-                padding: '10px 12px',
-                borderRadius: 6,
+                padding: '10px 14px',
+                borderRadius: 8,
                 textDecoration: 'none',
-                color: isActive ? '#fff' : '#94a3b8',
-                background: isActive ? '#334155' : 'transparent',
+                color: isActive ? '#111827' : '#6b7280',
+                background: isActive ? '#ffffff' : 'transparent',
                 fontSize: 14,
-                fontWeight: isActive ? 600 : 400,
+                fontWeight: isActive ? 500 : 400,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 10,
-                transition: 'all 0.15s',
+                gap: 12,
+                border: isActive ? '1px solid #e5e7eb' : '1px solid transparent',
+                boxShadow: isActive ? '0 1px 2px rgba(0,0,0,0.04)' : 'none',
+                transition: 'all 0.12s',
               })}
             >
-              <span style={{ fontSize: 16 }}>{item.icon}</span>
+              <span style={{ fontSize: 16, width: 20, textAlign: 'center', color: 'inherit' }}>{item.icon}</span>
               {item.label}
             </NavLink>
           ))}
         </nav>
 
-        {/* Footer del sidebar */}
+        {/* Footer sidebar */}
         {user && (
-          <div style={{ padding: '16px 20px 0', borderTop: '1px solid #334155' }}>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>
-              <div style={{ fontWeight: 600, color: '#e2e8f0' }}>{user.username}</div>
-              <div style={{ textTransform: 'uppercase', fontSize: 10 }}>{user.rol}</div>
+          <div style={{ paddingTop: 16, borderTop: '1px solid #e5e7eb', marginTop: 'auto' }}>
+            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 10 }}>
+              <div style={{ fontWeight: 600, color: '#374151' }}>{user.username}</div>
+              <div style={{ textTransform: 'uppercase', fontSize: 10, color: '#9ca3af', marginTop: 2 }}>{user.rol}</div>
             </div>
             <button
               onClick={logout}
               style={{
                 width: '100%',
                 padding: '8px 12px',
-                border: '1px solid #475569',
                 borderRadius: 6,
-                background: 'transparent',
-                color: '#94a3b8',
+                border: '1px solid #e5e7eb',
+                background: '#fff',
+                color: '#6b7280',
                 cursor: 'pointer',
                 fontSize: 13,
+                fontWeight: 500,
               }}
             >
               Cerrar sesion
@@ -123,7 +123,7 @@ export default function Layout() {
           style={{
             height: 56,
             background: '#fff',
-            borderBottom: '1px solid #e2e8f0',
+            borderBottom: '1px solid #e5e7eb',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -136,16 +136,52 @@ export default function Layout() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <ProjectSelector value={proyectoActivoId} onChange={cambiarProyecto} />
-            <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              style={{
+                padding: '6px 14px',
+                borderRadius: 6,
+                border: '1px solid #111827',
+                background: '#111827',
+                color: '#fff',
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: 'pointer',
+              }}
+            >
+              Edit Project
+            </button>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
               <button
                 style={{
                   width: 32,
                   height: 32,
-                  borderRadius: '50%',
-                  border: '1px solid #e2e8f0',
+                  borderRadius: 6,
+                  border: '1px solid #e5e7eb',
                   background: '#fff',
                   cursor: 'pointer',
                   fontSize: 14,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#6b7280',
+                }}
+                title="Buscar"
+              >
+                🔍
+              </button>
+              <button
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 6,
+                  border: '1px solid #e5e7eb',
+                  background: '#fff',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#6b7280',
                 }}
                 title="Notificaciones"
               >
@@ -155,11 +191,15 @@ export default function Layout() {
                 style={{
                   width: 32,
                   height: 32,
-                  borderRadius: '50%',
-                  border: '1px solid #e2e8f0',
+                  borderRadius: 6,
+                  border: '1px solid #e5e7eb',
                   background: '#fff',
                   cursor: 'pointer',
                   fontSize: 14,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#6b7280',
                 }}
                 title="Perfil"
               >

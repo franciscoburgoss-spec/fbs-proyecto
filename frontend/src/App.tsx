@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { ProyectoActivoProvider } from './context/ProyectoActivoContext'
 import { useAuth } from './hooks/useAuth'
 import Layout from './components/Layout'
 import Dashboard from './components/Dashboard'
@@ -32,7 +33,9 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <ProyectoActivoProvider>
+          <AppRoutes />
+        </ProyectoActivoProvider>
       </AuthProvider>
     </BrowserRouter>
   )

@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useDocumentos } from '../hooks/useDocumentos'
-import { useProyectoActivo } from '../hooks/useProyectoActivo'
+import { useProyectoActivoContext } from '../context/ProyectoActivoContext'
 import DocumentTable from './DocumentTable'
 
 export default function DocumentsPage() {
-  const { proyectoActivoId } = useProyectoActivo()
+  const { proyectoActivoId } = useProyectoActivoContext()
   const [filtroModulo, setFiltroModulo] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('')
   const [filtroEtapa, setFiltroEtapa] = useState('')
@@ -18,16 +18,15 @@ export default function DocumentsPage() {
 
   return (
     <div>
-      <h1 style={{ margin: '0 0 16px', fontSize: 20, fontWeight: 600, color: '#111827' }}>
+      <h1 style={{ margin: '0 0 20px', fontSize: 18, fontWeight: 600, color: '#111827' }}>
         All Documents
       </h1>
 
-      {/* Filtros */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
         <select
           value={filtroModulo}
           onChange={(e) => setFiltroModulo(e.target.value)}
-          style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #d1d5db', fontSize: 13 }}
+          style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid #e5e7eb', fontSize: 13, background: '#fff' }}
         >
           <option value="">All Modules</option>
           <option value="EST">EST</option>
@@ -37,7 +36,7 @@ export default function DocumentsPage() {
         <select
           value={filtroEstado}
           onChange={(e) => setFiltroEstado(e.target.value)}
-          style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #d1d5db', fontSize: 13 }}
+          style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid #e5e7eb', fontSize: 13, background: '#fff' }}
         >
           <option value="">All Status</option>
           <option value="ING">ING</option>
@@ -48,7 +47,7 @@ export default function DocumentsPage() {
         <select
           value={filtroEtapa}
           onChange={(e) => setFiltroEtapa(e.target.value)}
-          style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #d1d5db', fontSize: 13 }}
+          style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid #e5e7eb', fontSize: 13, background: '#fff' }}
         >
           <option value="">All Stages</option>
           <option value="CHK">CHK</option>
@@ -58,11 +57,9 @@ export default function DocumentsPage() {
         </select>
       </div>
 
-      {loading && <p style={{ color: '#6b7280' }}>Cargando documentos...</p>}
+      {loading && <p style={{ color: '#9ca3af' }}>Loading documents...</p>}
 
-      <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, background: '#fff' }}>
-        <DocumentTable documentos={documentos} />
-      </div>
+      <DocumentTable documentos={documentos} />
     </div>
   )
 }

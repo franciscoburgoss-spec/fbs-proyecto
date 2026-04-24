@@ -25,22 +25,17 @@ export function useTraceability(proyectoId?: number) {
     cargar()
   }, [cargar])
 
-  // Calcular approved/pending por modulo
+  // Calcular approved/pending REAL por modulo usando por_modulo_estado
   const porModulo = reporte
     ? reporte.por_modulo.map((m) => {
-        const aprobados = reporte.por_estado.find((e) => e.estado === 'APB')?.count || 0
-        // Aproximacion: aprobados por modulo proporcional al total
-        // Usamos los datos reales del reporte
-        const totalModulo = m.count
-        const moduloAprobados = Math.min(
-          aprobados,
-          totalModulo
-        )
+        const aprobados = reporte.por_modulo_estado
+          .filter((me) => me.modulo === m.modulo && me.estado === 'APB')
+          .reduce((sum, me) => sum + me.count, 0)
         return {
           modulo: m.modulo,
-          total: totalModulo,
-          aprobados: moduloAprobados,
-          pendientes: totalModulo - moduloAprobados,
+          total: m.count,
+          aprobados,
+          pendientes: m.count - aprobados,
         }
       })
     : []

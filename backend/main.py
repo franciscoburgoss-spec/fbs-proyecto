@@ -1,7 +1,7 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from backend.database import get_conn, init_db, seed_data
 from backend.routers import proyectos, documentos, auth, eventos, reportes
@@ -57,7 +57,23 @@ def health():
         return {"status": "error", "db": str(e)}
 
 
-# Servir frontend estatico (build de produccion) si existe
+# SPA fallback: servir index.html para cualquier ruta que no sea API ni archivo existente
 DIST_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
-if os.path.isdir(DIST_DIR):
-    app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="static")
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def serve_spa(full_path: str):
+    # No servir index.html para rutas de API
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="Not Found")
+    
+    # Si existe el archivo solicitado, servirlo (assets, css, js, etc.)
+    file_path = os.path.join(DIST_DIR, full_path)
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return FileResponse(file_path)
+    
+    # Por defecto, servir index.html para que React Router maneje la ruta
+    index_path = os.path.join(DIST_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    
+    raise HTTPException(status_code=404, detail="Not Found")
