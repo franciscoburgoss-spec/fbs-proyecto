@@ -50,7 +50,12 @@ chmod +x "$PROJECT_DIR/scripts/backup.sh"
 if [ ! -f "$PROJECT_DIR/.env" ]; then
     echo "→ Creando .env desde plantilla..."
     cp "$PROJECT_DIR/.env.example" "$PROJECT_DIR/.env"
-    echo "⚠ IMPORTANTE: Edita .env y define JWT_SECRET con al menos 32 caracteres"
+    # Generar una clave JWT segura sin '!' para evitar problemas con bash history expansion
+    SAFE_SECRET=$(LC_ALL=C tr -dc 'A-Za-z0-9_-@#%^&*+=~' < /dev/urandom | head -c 48)
+    # Reemplazar la linea de JWT_SECRET con la clave generada
+    sed -i '' "s/^JWT_SECRET=.*/JWT_SECRET=$SAFE_SECRET/" "$PROJECT_DIR/.env" 2>/dev/null || \
+        sed -i "s/^JWT_SECRET=.*/JWT_SECRET=$SAFE_SECRET/" "$PROJECT_DIR/.env"
+    echo "⚠ IMPORTANTE: Edita .env y anota la JWT_SECRET generada: $SAFE_SECRET"
 fi
 
 echo ""

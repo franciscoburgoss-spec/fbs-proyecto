@@ -21,14 +21,17 @@ else
     echo ""
 fi
 
-# Cargar .env si existe
+# Cargar .env si existe (lectura segura sin history expansion)
 ENV_FILE="$PROJECT_DIR/.env"
 if [ -f "$ENV_FILE" ]; then
-    set +H  # desactivar history expansion para evitar problemas con '!' en valores
-    set -a
-    source "$ENV_FILE"
-    set +a
-    set -H  # reactivar history expansion
+    while IFS='=' read -r key value || [ -n "$key" ]; do
+        case "$key" in
+            ''|\#*) continue ;;
+        esac
+        # Eliminar posible export/declare al inicio
+        key=$(echo "$key" | sed 's/^[[:space:]]*export[[:space:]]*//')
+        export "$key=$value"
+    done < "$ENV_FILE"
     echo "Configuracion cargada desde .env"
 else
     echo "WARNING: No se encontro .env"
