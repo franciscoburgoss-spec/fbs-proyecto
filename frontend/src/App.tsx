@@ -3,13 +3,12 @@ import { AuthProvider } from './context/AuthContext'
 import { useAuth } from './hooks/useAuth'
 import Layout from './components/Layout'
 import Dashboard from './components/Dashboard'
-import ProyectoList from './components/ProyectoList'
-import DocumentoList from './components/DocumentoList'
+import DocumentsPage from './components/DocumentsPage'
+import ModulesPage from './components/ModulesPage'
+import TasksPage from './components/TasksPage'
+import UsersRolesPage from './components/UsersRolesPage'
+import SettingsPage from './components/SettingsPage'
 import LoginPage from './components/LoginPage'
-import AdminPage from './components/AdminPage'
-import PerfilPage from './components/PerfilPage'
-import ProyectoDetail from './components/ProyectoDetail'
-import AuditoriaPage from './components/AuditoriaPage'
 
 function AppRoutes() {
   const { user, loading } = useAuth()
@@ -19,12 +18,11 @@ function AppRoutes() {
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
       <Route element={user ? <Layout /> : <Navigate to="/login" replace />}>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/proyectos" element={<ProyectoList />} />
-        <Route path="/proyectos/:id" element={<ProyectoDetail />} />
-        <Route path="/documentos" element={<DocumentoList />} />
-        <Route path="/perfil" element={<PerfilPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/auditoria" element={<AuditoriaPage />} />
+        <Route path="/documents" element={<DocumentsPage />} />
+        <Route path="/modules" element={<ModulesPage />} />
+        <Route path="/tasks" element={<TasksPage />} />
+        <Route path="/users" element={<UsersRolesPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
     </Routes>
   )
