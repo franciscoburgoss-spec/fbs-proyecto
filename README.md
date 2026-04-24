@@ -19,15 +19,11 @@ Sistema de gestion de proyectos de ingenieria con maquinas de estado, auditoria 
 git clone https://github.com/franciscoburgoss-spec/fbs-proyecto.git
 cd fbs-proyecto
 
-# Crear y activar entorno virtual (venv)
-python3 -m venv .venv
-source .venv/bin/activate
+# Hacer ejecutables los scripts nativos (necesario tras clonar)
+chmod +x scripts/*.sh
 
-# Instalar dependencias
-pip install -r requirements.txt
-
-# Hacer ejecutables los scripts nativos
-chmod +x scripts/start.sh scripts/backup.sh
+# Ejecutar setup unico (crea venv e instala dependencias)
+./scripts/setup-mac.sh
 ```
 
 ## Configuracion
@@ -40,10 +36,10 @@ cp .env.example .env
 ## Inicio en produccion local (nativo, sin Docker)
 
 ```bash
-# 1. Setear variables de entorno
-export JWT_SECRET="tu-clave-segura-de-32-caracteres-aqui"
+# 1. Edita .env y define al menos JWT_SECRET (32+ caracteres)
+nano .env
 
-# 2. Ejecutar script nativo (build + backup + servidor)
+# 2. Ejecutar script nativo (carga .env + build + backup + servidor)
 ./scripts/start.sh
 ```
 
@@ -58,7 +54,6 @@ Si estas modificando el frontend y necesitas hot-reload:
 ```bash
 # Terminal 1: backend (con venv activado)
 source .venv/bin/activate
-export JWT_SECRET="dev-secret-key"
 uvicorn backend.main:app --reload --port 8000
 
 # Terminal 2: frontend dev server

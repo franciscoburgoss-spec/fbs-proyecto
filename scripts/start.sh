@@ -21,10 +21,21 @@ else
     echo ""
 fi
 
+# Cargar .env si existe
+ENV_FILE="$PROJECT_DIR/.env"
+if [ -f "$ENV_FILE" ]; then
+    set -a
+    source "$ENV_FILE"
+    set +a
+    echo "Configuracion cargada desde .env"
+else
+    echo "WARNING: No se encontro .env"
+fi
+
 # Configuracion por defecto (sobrescribible via env)
 export FBS_DB_PATH="${FBS_DB_PATH:-$HOME/.fbs/fbs.db}"
 export FBS_HISTORIAL_PATH="${FBS_HISTORIAL_PATH:-$HOME/.fbs/registro/historial.jsonl}"
-export JWT_SECRET="${JWT_SECRET:?Error: JWT_SECRET no esta definida}"
+export JWT_SECRET="${JWT_SECRET:?Error: JWT_SECRET no esta definida. Edita el archivo .env}"
 export FBS_CORS_ORIGINS="${FBS_CORS_ORIGINS:-http://localhost:8000,http://127.0.0.1:8000}"
 export JWT_EXPIRE_MINUTES="${JWT_EXPIRE_MINUTES:-1440}"
 export UVICORN_PORT="${UVICORN_PORT:-8000}"
