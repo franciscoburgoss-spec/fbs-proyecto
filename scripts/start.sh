@@ -24,9 +24,11 @@ fi
 # Cargar .env si existe
 ENV_FILE="$PROJECT_DIR/.env"
 if [ -f "$ENV_FILE" ]; then
+    set +H  # desactivar history expansion para evitar problemas con '!' en valores
     set -a
     source "$ENV_FILE"
     set +a
+    set -H  # reactivar history expansion
     echo "Configuracion cargada desde .env"
 else
     echo "WARNING: No se encontro .env"
