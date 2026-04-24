@@ -33,6 +33,11 @@ if [ -f "$ENV_FILE" ]; then
         export "$key=$value"
     done < "$ENV_FILE"
     echo "Configuracion cargada desde .env"
+    # Expandir $HOME y ~ en las rutas leidas del .env
+    FBS_DB_PATH="${FBS_DB_PATH/#\~/$HOME}"
+    FBS_DB_PATH=$(eval echo "$FBS_DB_PATH")
+    FBS_HISTORIAL_PATH="${FBS_HISTORIAL_PATH/#\~/$HOME}"
+    FBS_HISTORIAL_PATH=$(eval echo "$FBS_HISTORIAL_PATH")
 else
     echo "WARNING: No se encontro .env"
 fi

@@ -50,21 +50,19 @@ chmod +x "$PROJECT_DIR/scripts/backup.sh"
 if [ ! -f "$PROJECT_DIR/.env" ]; then
     echo "→ Creando .env desde plantilla..."
     cp "$PROJECT_DIR/.env.example" "$PROJECT_DIR/.env"
-    # Generar una clave JWT segura sin '!' para evitar problemas con bash history expansion
+    # Generar una clave JWT segura sin signo exclamacion
     SAFE_SECRET=$(LC_ALL=C tr -dc 'A-Za-z0-9_-@#%^&*+=~' < /dev/urandom | head -c 48)
-    # Reemplazar la linea de JWT_SECRET con la clave generada
+    # Reemplazar JWT_SECRET en .env
     sed -i '' "s/^JWT_SECRET=.*/JWT_SECRET=$SAFE_SECRET/" "$PROJECT_DIR/.env" 2>/dev/null || \
         sed -i "s/^JWT_SECRET=.*/JWT_SECRET=$SAFE_SECRET/" "$PROJECT_DIR/.env"
-    echo "⚠ IMPORTANTE: Edita .env y anota la JWT_SECRET generada: $SAFE_SECRET"
+    echo "⚠ IMPORTANTE: Anota esta JWT_SECRET: $SAFE_SECRET"
 fi
 
 echo ""
 echo "=== Setup completo ==="
 echo ""
 echo "Para iniciar la aplicacion:"
-echo "  1. Edita .env y define JWT_SECRET"
-echo "  2. export JWT_SECRET=\"tu-clave-de-32-caracteres\""
-echo "  3. ./scripts/start.sh"
+echo "  ./scripts/start.sh"
 echo ""
 echo "Para desarrollo (frontend hot-reload):"
 echo "  Terminal 1: source .venv/bin/activate && uvicorn backend.main:app --reload"
