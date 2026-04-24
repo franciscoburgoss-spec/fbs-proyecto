@@ -93,11 +93,6 @@ export default function Dashboard() {
         ) : (
           <DocumentTable documentos={documentos} onAction={handleAction} />
         )}
-
-        <QuickActions
-          onUpload={() => navigate('/documents')}
-          onReport={() => navigate('/modules')}
-        />
       </div>
 
       {/* Right sidebar */}
@@ -118,6 +113,14 @@ export default function Dashboard() {
           ) : (
             <TraceabilitySummary porModulo={porModulo} />
           )}
+        </div>
+
+        {/* Quick Actions */}
+        <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, background: '#fff' }}>
+          <QuickActions
+            onUpload={() => navigate('/documents')}
+            onReport={() => navigate('/modules')}
+          />
         </div>
       </div>
 

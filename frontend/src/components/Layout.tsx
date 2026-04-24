@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useLocation } from 'react-router-dom'
+import { Outlet, NavLink } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useProyectoActivoContext } from '../context/ProyectoActivoContext'
 import ProjectSelector from './ProjectSelector'
@@ -13,27 +13,13 @@ const navItems = [
 ]
 
 function Breadcrumb() {
-  const location = useLocation()
-  const parts = location.pathname.split('/').filter(Boolean)
-
-  const labels: Record<string, string> = {
-    '': 'Dashboard',
-    documents: 'Documents',
-    modules: 'Modules',
-    tasks: 'My Tasks',
-    users: 'Users & Roles',
-    settings: 'Settings',
-  }
-
-  const current = labels[parts[0] || ''] || 'Dashboard'
-
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#6b7280' }}>
       <span style={{ color: '#9ca3af' }}>Dashboard</span>
       <span style={{ color: '#d1d5db' }}>/</span>
       <span style={{ color: '#6b7280' }}>Projects</span>
       <span style={{ color: '#d1d5db' }}>/</span>
-      <span style={{ color: '#374151', fontWeight: 500 }}>{current}</span>
+      <span style={{ color: '#374151', fontWeight: 500 }}>Engineering Designs</span>
     </div>
   )
 }
