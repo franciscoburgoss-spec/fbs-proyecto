@@ -1,30 +1,44 @@
 import { useState } from 'react'
 import type { Documento } from '../types'
 import { getAvailableTransitions } from './TransitionModal'
+import { ChevronRight, Lock, MoreHorizontal, CircleCheck, Circle, RefreshCw, Ban } from 'lucide-react'
 
 interface DocumentTableProps {
   documentos: Documento[]
   onAction?: (doc: Documento) => void
 }
 
-const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  APB: { bg: 'bg-[#ecfdf5]', text: 'text-[#10b981]', border: 'border-[#a7f3d0]' },
-  ING: { bg: 'bg-[#eff6ff]', text: 'text-[#3b82f6]', border: 'border-[#bfdbfe]' },
-  COR: { bg: 'bg-[#fffbeb]', text: 'text-[#f59e0b]', border: 'border-[#fde68a]' },
-  OBS: { bg: 'bg-[#fef2f2]', text: 'text-[#ef4444]', border: 'border-[#fecaca]' },
+const STATUS_META: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode }> = {
+  APB: {
+    bg: 'bg-[#f0fdf4]',
+    text: 'text-[#16a34a]',
+    border: 'border-[#bbf7d0]',
+    icon: <CircleCheck className="w-3 h-3" strokeWidth={2} />,
+  },
+  ING: {
+    bg: 'bg-[#eff6ff]',
+    text: 'text-[#3b82f6]',
+    border: 'border-[#bfdbfe]',
+    icon: <Circle className="w-3 h-3" strokeWidth={2} />,
+  },
+  COR: {
+    bg: 'bg-[#fffbeb]',
+    text: 'text-[#f59e0b]',
+    border: 'border-[#fde68a]',
+    icon: <RefreshCw className="w-3 h-3" strokeWidth={2} />,
+  },
+  OBS: {
+    bg: 'bg-[#fef2f2]',
+    text: 'text-[#ef4444]',
+    border: 'border-[#fecaca]',
+    icon: <Ban className="w-3 h-3" strokeWidth={2} />,
+  },
 }
 
-const MODULE_COLORS: Record<string, { bg: string; text: string }> = {
-  EST: { bg: 'bg-[#dbeafe]', text: 'text-[#3b82f6]' },
-  HAB: { bg: 'bg-[#d1fae5]', text: 'text-[#10b981]' },
-  MDS: { bg: 'bg-[#fef3c7]', text: 'text-[#f59e0b]' },
-}
-
-const STATUS_ICON: Record<string, string> = {
-  APB: '&#10003;',
-  ING: '&#9711;',
-  COR: '&#8635;',
-  OBS: '&#8856;',
+const MODULE_META: Record<string, { bg: string; text: string }> = {
+  EST: { bg: 'bg-[#eff6ff]', text: 'text-[#2563eb]' },
+  HAB: { bg: 'bg-[#f0fdf4]', text: 'text-[#16a34a]' },
+  MDS: { bg: 'bg-[#fffbeb]', text: 'text-[#d97706]' },
 }
 
 export function formatDocumentId(doc: Documento): string {
@@ -59,133 +73,137 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
 
   return (
     <div className="bg-white rounded-lg border border-[#e5e7eb] overflow-hidden">
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="border-b border-[#e5e7eb]">
-            {['DOCUMENT ID', 'TITLE', 'MODULE', 'STATUS', 'LAST UPDATE', 'ACTIONS'].map((h) => (
-              <th
-                key={h}
-                className="px-4 py-3 text-left font-semibold text-[11px] text-[#9ca3af] uppercase tracking-[0.5px]"
+      {/* Header */}
+      <div className="grid grid-cols-12 gap-3 px-4 py-3 border-b border-[#e5e7eb]">
+        <div className="col-span-3 text-[11px] font-semibold text-[#9ca3af] uppercase tracking-[0.5px]">Document ID</div>
+        <div className="col-span-3 text-[11px] font-semibold text-[#9ca3af] uppercase tracking-[0.5px]">Title</div>
+        <div className="col-span-2 text-[11px] font-semibold text-[#9ca3af] uppercase tracking-[0.5px]">Module</div>
+        <div className="col-span-2 text-[11px] font-semibold text-[#9ca3af] uppercase tracking-[0.5px]">Status</div>
+        <div className="col-span-1 text-[11px] font-semibold text-[#9ca3af] uppercase tracking-[0.5px]">Last Update</div>
+        <div className="col-span-1 text-[11px] font-semibold text-[#9ca3af] uppercase tracking-[0.5px] text-right">Actions</div>
+      </div>
+
+      {/* Rows */}
+      <div className="divide-y divide-[#f3f4f6]">
+        {documentos.map((doc) => {
+          const st = STATUS_META[doc.estado] || {
+            bg: 'bg-[#f3f4f6]',
+            text: 'text-[#6b7280]',
+            border: 'border-[#e5e7eb]',
+            icon: null,
+          }
+          const mod = MODULE_META[doc.modulo] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]' }
+          const fecha = formatFecha(doc.fecha_modificacion)
+          const docId = formatDocumentId(doc)
+          const isExpanded = expandedIds.has(doc.id)
+          const transiciones = getAvailableTransitions(doc.estado)
+
+          return (
+            <div key={doc.id}>
+              {/* Row */}
+              <div
+                className="grid grid-cols-12 gap-3 px-4 py-3 items-center cursor-pointer hover:bg-[#fafafa] transition-colors"
+                onClick={() => toggleExpand(doc.id)}
               >
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {documentos.map((doc) => {
-            const st = STATUS_COLORS[doc.estado] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]', border: 'border-[#e5e7eb]' }
-            const mod = MODULE_COLORS[doc.modulo] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]' }
-            const fecha = formatFecha(doc.fecha_modificacion)
-            const docId = formatDocumentId(doc)
-            const isExpanded = expandedIds.has(doc.id)
-            const transiciones = getAvailableTransitions(doc.estado)
-
-            return (
-              <tr key={doc.id} className="border-b border-[#f3f4f6]">
                 {/* Document ID */}
-                <td className="px-4 py-3 align-top cursor-pointer" onClick={() => toggleExpand(doc.id)}>
-                  <div className="flex items-start gap-2.5">
-                    <span
-                      className="text-[10px] text-[#9ca3af] mt-0.5 shrink-0 transition-transform duration-150 select-none"
-                      style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
-                    >
-                      &#9656;
-                    </span>
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium text-[#111827] leading-5">{doc.nombre}</div>
-                      <div className="text-xs text-[#9ca3af] font-mono mt-0.5 leading-4">{docId}</div>
-
-                      {/* Expanded content */}
-                      {isExpanded && (
-                        <div className="mt-3.5 ml-1">
-                          {/* Transition History */}
-                          <div className="mb-3">
-                            <div className="flex items-center gap-1.5 mb-1.5">
-                              <span className="text-[11px] text-[#9ca3af]">&#8635;</span>
-                              <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-[0.5px]">
-                                Transition History
-                              </span>
-                            </div>
-                            <p className="text-xs text-[#d1d5db] italic pl-4">No transitions recorded</p>
-                          </div>
-
-                          {/* Available Transitions */}
-                          {transiciones.length > 0 && (
-                            <div>
-                              <div className="flex items-center gap-1.5 mb-2">
-                                <span className="text-[11px] text-[#9ca3af]">&#8594;</span>
-                                <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-[0.5px]">
-                                  Available Transitions
-                                </span>
-                              </div>
-                              <div className="flex gap-2 pl-4 flex-wrap">
-                                {transiciones.map((t) => {
-                                  const tgt = STATUS_COLORS[t.hacia] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]', border: 'border-[#e5e7eb]' }
-                                  return (
-                                    <button
-                                      key={t.hacia}
-                                      onClick={(e) => { e.stopPropagation(); onAction && onAction(doc) }}
-                                      className={`flex items-center gap-1 px-2 py-[3px] rounded text-[11px] font-semibold border ${tgt.bg} ${tgt.text} ${tgt.border} leading-4 cursor-pointer hover:opacity-80 transition-opacity`}
-                                    >
-                                      <span className="text-[10px] font-bold text-[#6b7280]">{t.desde}</span>
-                                      <span className="text-[10px] text-[#9ca3af]">&#8594;</span>
-                                      <span className="text-[10px] font-bold">{t.hacia}</span>
-                                      {t.requiereObservacion && (
-                                        <span className="text-[9px] text-[#9ca3af] ml-0.5">(needs observacion)</span>
-                                      )}
-                                    </button>
-                                  )
-                                })}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                <div className="col-span-3 flex items-center gap-2">
+                  <ChevronRight
+                    className={`w-3.5 h-3.5 text-[#9ca3af] shrink-0 transition-transform duration-150 ${isExpanded ? 'rotate-90' : ''}`}
+                    strokeWidth={2}
+                  />
+                  <div className="min-w-0">
+                    <div className="text-[13px] font-medium text-[#374151] leading-5">{doc.nombre}</div>
+                    <div className="text-[11px] text-[#9ca3af] font-mono leading-4">{docId}</div>
                   </div>
-                </td>
+                </div>
 
                 {/* Title */}
-                <td className="px-4 py-3 text-sm text-[#374151] align-top leading-5">{doc.nombre}</td>
+                <div className="col-span-3 text-[13px] text-[#4b5563] leading-5">{doc.nombre}</div>
 
                 {/* Module */}
-                <td className="px-4 py-3 align-top">
-                  <span className={`inline-block px-2 py-[2px] rounded text-[11px] font-bold uppercase leading-[14px] ${mod.bg} ${mod.text}`}>
+                <div className="col-span-2">
+                  <span className={`inline-flex items-center justify-center rounded-full text-[11px] font-medium px-2 py-0.5 ${mod.bg} ${mod.text}`}>
                     {doc.modulo}
                   </span>
-                </td>
+                </div>
 
                 {/* Status */}
-                <td className="px-4 py-3 align-top">
-                  <span className={`inline-flex items-center gap-1 px-2.5 py-[3px] rounded-full text-xs font-semibold border ${st.bg} ${st.text} ${st.border} leading-4`}>
-                    <span className="text-[11px] inline-flex items-center" dangerouslySetInnerHTML={{ __html: STATUS_ICON[doc.estado] || '' }} />
+                <div className="col-span-2">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border ${st.bg} ${st.text} ${st.border}`}>
+                    {st.icon}
                     {doc.estado}
                   </span>
-                </td>
+                </div>
 
                 {/* Last Update */}
-                <td className="px-4 py-3 text-[13px] text-[#6b7280] align-top leading-5">{fecha}</td>
+                <div className="col-span-1 text-[12px] text-[#9ca3af] leading-5">{fecha}</div>
 
                 {/* Actions */}
-                <td className="px-4 py-3 align-top">
+                <div className="col-span-1 text-right">
                   {doc.estado === 'APB' ? (
-                    <span className="text-sm text-[#d1d5db] cursor-default inline-block" title="Aprobado">&#128274;</span>
+                    <button
+                      disabled
+                      className="p-1.5 rounded-md hover:bg-[#f3f4f6] transition-colors inline-flex items-center gap-1 text-[11px] text-[#6b7280]"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-[#9ca3af]" strokeWidth={2} />
+                    </button>
                   ) : (
                     <button
                       onClick={(e) => { e.stopPropagation(); onAction && onAction(doc) }}
-                      className="px-1.5 py-0.5 text-sm text-[#9ca3af] hover:text-[#6b7280] transition-colors leading-none"
-                      title="Acciones"
+                      className="p-1.5 rounded-md hover:bg-[#f3f4f6] transition-colors inline-flex items-center gap-1 text-[11px] text-[#6b7280]"
                     >
-                      &#8942;
+                      <MoreHorizontal className="w-3.5 h-3.5 text-[#9ca3af]" strokeWidth={2} />
                     </button>
                   )}
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+                </div>
+              </div>
+
+              {/* Expanded content */}
+              {isExpanded && (
+                <div className="px-4 pb-3 pl-[52px]">
+                  {/* Transition History */}
+                  <div className="mb-3">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <RefreshCw className="w-3 h-3 text-[#9ca3af]" strokeWidth={2} />
+                      <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-[0.5px]">Transition History</span>
+                    </div>
+                    <p className="text-xs text-[#d1d5db] italic pl-4">No transitions recorded</p>
+                  </div>
+
+                  {/* Available Transitions */}
+                  {transiciones.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <span className="text-[11px] text-[#9ca3af]">&#8594;</span>
+                        <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-[0.5px]">Available Transitions</span>
+                      </div>
+                      <div className="flex gap-2 pl-4 flex-wrap">
+                        {transiciones.map((t) => {
+                          const tgt = STATUS_META[t.hacia] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]', border: 'border-[#e5e7eb]' }
+                          return (
+                            <button
+                              key={t.hacia}
+                              onClick={(e) => { e.stopPropagation(); onAction && onAction(doc) }}
+                              className={`flex items-center gap-1 px-2 py-[3px] rounded text-[11px] font-semibold border cursor-pointer hover:opacity-80 transition-opacity leading-4 ${tgt.bg} ${tgt.text} ${tgt.border}`}
+                            >
+                              <span className="text-[10px] font-bold text-[#6b7280]">{t.desde}</span>
+                              <span className="text-[10px] text-[#9ca3af]">&#8594;</span>
+                              <span className="text-[10px] font-bold">{t.hacia}</span>
+                              {t.requiereObservacion && (
+                                <span className="text-[9px] text-[#9ca3af] ml-0.5">(needs observacion)</span>
+                              )}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
