@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Documento } from '../types'
+import { getAvailableTransitions } from './TransitionModal'
 
 interface DocumentTableProps {
   documentos: Documento[]
@@ -21,6 +22,22 @@ const MODULE_COLORS: Record<string, { bg: string; text: string }> = {
 
 export function formatDocumentId(doc: Documento): string {
   return `${doc.modulo}-${doc.etapa}-${doc.tipo}-${doc.tt}-${doc.nn}`
+}
+
+function formatFecha(fechaStr: string): string {
+  const fecha = new Date(fechaStr)
+  const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+  return `${fecha.getDate()} ${meses[fecha.getMonth()]} ${fecha.getFullYear()}`
+}
+
+function StatusIcon({ estado }: { estado: string }) {
+  const icons: Record<string, string> = {
+    APB: '&#10003;',
+    ING: '&#9711;',
+    COR: '&#8635;',
+    OBS: '&#8856;',
+  }
+  return <span dangerouslySetInnerHTML={{ __html: icons[estado] || '' }} />
 }
 
 export default function DocumentTable({ documentos, onAction }: DocumentTableProps) {
@@ -58,7 +75,6 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
   return (
     <div
       style={{
-        overflow: 'auto',
         background: '#fff',
         borderRadius: 8,
         border: '1px solid #e5e7eb',
@@ -67,61 +83,39 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
         <thead>
           <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-            {['DOCUMENT ID', 'TITLE', 'MODULE', 'STATUS', 'LAST UPDATE', 'ACTIONS'].map(
-              (h) => (
-                <th
-                  key={h}
-                  style={{
-                    padding: '14px 16px',
-                    textAlign: 'left',
-                    fontWeight: 600,
-                    color: '#9ca3af',
-                    fontSize: 11,
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.5,
-                  }}
-                >
-                  {h}
-                </th>
-              )
-            )}
+            {['DOCUMENT ID', 'TITLE', 'MODULE', 'STATUS', 'LAST UPDATE', 'ACTIONS'].map((h) => (
+              <th
+                key={h}
+                style={{
+                  padding: '14px 16px',
+                  textAlign: 'left',
+                  fontWeight: 600,
+                  color: '#9ca3af',
+                  fontSize: 11,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                }}
+              >
+                {h}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {documentos.map((doc) => {
             const status =
-              STATUS_COLORS[doc.estado] || {
-                bg: '#f3f4f6',
-                text: '#6b7280',
-                border: '#e5e7eb',
-              }
-            const mod =
-              MODULE_COLORS[doc.modulo] || { bg: '#f3f4f6', text: '#6b7280' }
-            const fecha = new Date(doc.fecha_modificacion).toLocaleDateString(
-              'en-US',
-              {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              }
-            )
+              STATUS_COLORS[doc.estado] || { bg: '#f3f4f6', text: '#6b7280', border: '#e5e7eb' }
+            const mod = MODULE_COLORS[doc.modulo] || { bg: '#f3f4f6', text: '#6b7280' }
+            const fecha = formatFecha(doc.fecha_modificacion)
             const docId = formatDocumentId(doc)
             const isExpanded = expandedIds.has(doc.id)
+            const transiciones = getAvailableTransitions(doc.estado)
 
             return (
-              <tr
-                key={doc.id}
-                style={{ borderBottom: '1px solid #f3f4f6' }}
-              >
-                {/* Document ID: chevron + name + sub-id */}
-                <td style={{ padding: '14px 16px' }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: 10,
-                    }}
-                  >
+              <tr key={doc.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                {/* Document ID */}
+                <td style={{ padding: '14px 16px', verticalAlign: 'top' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                     <span
                       onClick={() => toggleExpand(doc.id)}
                       style={{
@@ -138,13 +132,7 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
                       &#9656;
                     </span>
                     <div>
-                      <div
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: '#111827',
-                        }}
-                      >
+                      <div style={{ fontSize: 14, fontWeight: 500, color: '#111827' }}>
                         {doc.nombre}
                       </div>
                       <div
@@ -157,41 +145,112 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
                       >
                         {docId}
                       </div>
-                      {/* Expanded detail */}
-                      {isExpanded && (
+                    </div>
+                  </div>
+
+                  {/* EXPANDED: Transition History + Available Transitions */}
+                  {isExpanded && (
+                    <div style={{ marginTop: 12, marginLeft: 20 }}>
+                      {/* Transition History */}
+                      <div style={{ marginBottom: 12 }}>
                         <div
                           style={{
-                            marginTop: 8,
-                            padding: '8px 12px',
-                            background: '#f9fafb',
-                            borderRadius: 6,
-                            fontSize: 12,
-                            color: '#6b7280',
-                            maxWidth: 300,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            marginBottom: 6,
                           }}
                         >
-                          <div>
-                            <strong>Module:</strong> {doc.modulo}
+                          <span style={{ fontSize: 12, color: '#9ca3af' }}>&#8635;</span>
+                          <span
+                            style={{
+                              fontSize: 10,
+                              fontWeight: 700,
+                              color: '#9ca3af',
+                              textTransform: 'uppercase',
+                              letterSpacing: 0.5,
+                            }}
+                          >
+                            Transition History
+                          </span>
+                        </div>
+                        <p
+                          style={{
+                            margin: 0,
+                            fontSize: 12,
+                            color: '#d1d5db',
+                            fontStyle: 'italic',
+                            paddingLeft: 18,
+                          }}
+                        >
+                          No transitions recorded
+                        </p>
+                      </div>
+
+                      {/* Available Transitions */}
+                      {transiciones.length > 0 && (
+                        <div>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 6,
+                              marginBottom: 8,
+                            }}
+                          >
+                            <span style={{ fontSize: 12, color: '#9ca3af' }}>&#8594;</span>
+                            <span
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 700,
+                                color: '#9ca3af',
+                                textTransform: 'uppercase',
+                                letterSpacing: 0.5,
+                              }}
+                            >
+                              Available Transitions
+                            </span>
                           </div>
-                          <div>
-                            <strong>Stage:</strong> {doc.etapa}
+                          <div style={{ display: 'flex', gap: 8, paddingLeft: 18 }}>
+                            {transiciones.map((t) => {
+                              const target =
+                                STATUS_COLORS[t.hacia] || {
+                                  bg: '#f3f4f6',
+                                  text: '#6b7280',
+                                  border: '#e5e7eb',
+                                }
+                              return (
+                                <button
+                                  key={t.hacia}
+                                  onClick={() => onAction && onAction(doc)}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 4,
+                                    padding: '4px 10px',
+                                    borderRadius: 4,
+                                    border: `1px solid ${target.border}`,
+                                    background: target.bg,
+                                    color: target.text,
+                                    fontSize: 11,
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                  }}
+                                >
+                                  {t.desde} &#8594; {t.hacia}
+                                  {t.requiereObservacion && (
+                                    <span style={{ fontSize: 9, color: '#f59e0b', marginLeft: 4 }}>
+                                      (needs observacion)
+                                    </span>
+                                  )}
+                                </button>
+                              )
+                            })}
                           </div>
-                          <div>
-                            <strong>Type:</strong> {doc.tipo}
-                          </div>
-                          <div>
-                            <strong>Status:</strong> {doc.estado}
-                          </div>
-                          {doc.observacion && (
-                            <div style={{ marginTop: 4, color: '#991b1b' }}>
-                              <strong>Observation:</strong>{' '}
-                              {doc.observacion}
-                            </div>
-                          )}
                         </div>
                       )}
                     </div>
-                  </div>
+                  )}
                 </td>
 
                 {/* Title */}
@@ -200,13 +259,14 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
                     padding: '14px 16px',
                     color: '#374151',
                     fontSize: 14,
+                    verticalAlign: 'top',
                   }}
                 >
                   {doc.nombre}
                 </td>
 
                 {/* Module pill */}
-                <td style={{ padding: '14px 16px' }}>
+                <td style={{ padding: '14px 16px', verticalAlign: 'top' }}>
                   <span
                     style={{
                       display: 'inline-block',
@@ -224,7 +284,7 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
                 </td>
 
                 {/* Status pill */}
-                <td style={{ padding: '14px 16px' }}>
+                <td style={{ padding: '14px 16px', verticalAlign: 'top' }}>
                   <span
                     style={{
                       display: 'inline-flex',
@@ -239,10 +299,7 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
                       border: `1px solid ${status.border}`,
                     }}
                   >
-                    {doc.estado === 'APB' && <span>&#10003;</span>}
-                    {doc.estado === 'OBS' && <span>!</span>}
-                    {doc.estado === 'COR' && <span>&#8635;</span>}
-                    {doc.estado === 'ING' && <span>&#9679;</span>}
+                    <StatusIcon estado={doc.estado} />
                     {doc.estado}
                   </span>
                 </td>
@@ -253,13 +310,14 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
                     padding: '14px 16px',
                     color: '#6b7280',
                     fontSize: 13,
+                    verticalAlign: 'top',
                   }}
                 >
                   {fecha}
                 </td>
 
                 {/* Actions */}
-                <td style={{ padding: '14px 16px' }}>
+                <td style={{ padding: '14px 16px', verticalAlign: 'top' }}>
                   {doc.estado === 'APB' ? (
                     <span
                       style={{

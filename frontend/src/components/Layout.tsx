@@ -4,12 +4,12 @@ import { useProyectoActivoContext } from '../context/ProyectoActivoContext'
 import ProjectSelector from './ProjectSelector'
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: '□' },
-  { to: '/documents', label: 'Documents', icon: '▤' },
-  { to: '/modules', label: 'Modules', icon: '▦' },
-  { to: '/tasks', label: 'My Tasks', icon: '▣' },
-  { to: '/users', label: 'Users & Roles', icon: '▧' },
-  { to: '/settings', label: 'Settings', icon: '▨' },
+  { to: '/', label: 'Dashboard', icon: '🏠' },
+  { to: '/documents', label: 'Documents', icon: '📄' },
+  { to: '/modules', label: 'Modules', icon: '📁' },
+  { to: '/tasks', label: 'My Tasks', icon: '⊞' },
+  { to: '/users', label: 'Users & Roles', icon: '👥' },
+  { to: '/settings', label: 'Settings', icon: '⚙️' },
 ]
 
 function Breadcrumb() {
