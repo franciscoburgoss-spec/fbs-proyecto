@@ -13,7 +13,7 @@ export default function DocumentoList() {
   const [filtros, setFiltros] = useState<{ proyecto_id?: number; etapa?: string; estado?: string; modulo?: string }>(
     proyecto_id ? { proyecto_id: Number(proyecto_id) } : {}
   )
-  const { documentos, loading, _error, fetch, crear, eliminar, transicionar } = useDocumentos(filtros)
+  const { documentos, loading, fetch, crear, eliminar, transicionar } = useDocumentos(filtros)
   const { proyectos } = useProyectos()
 
   const [form, setForm] = useState<Partial<DocumentoIn & { proyecto_id: number }>>({ proyecto_id: 1 })
