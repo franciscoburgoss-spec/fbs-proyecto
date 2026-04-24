@@ -1,12 +1,10 @@
 import sqlite3
 import os
+import bcrypt
 from contextlib import contextmanager
 from pathlib import Path
-from passlib.context import CryptContext
 
 DB_PATH = os.environ.get("FBS_DB_PATH", "./fbs.db")
-
-_pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 @contextmanager
 def get_conn():
@@ -98,7 +96,7 @@ def seed_data():
             if admin_count == 0:
                 conn.execute(
                     "INSERT INTO usuarios (username, email, password_hash, rol) VALUES (?, ?, ?, ?)",
-                    ("admin", "admin@fbs.local", _pwd.hash("admin123"), "admin"),
+                    ("admin", "admin@fbs.local", bcrypt.hashpw("admin123".encode('utf-8'), bcrypt.gensalt()).decode('utf-8'), "admin"),
                 )
             return
 
