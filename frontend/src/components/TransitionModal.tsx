@@ -15,12 +15,8 @@ interface TransitionModalProps {
 }
 
 const TRANSICIONES: Record<string, Transition[]> = {
-  ING: [
-    { desde: 'ING', hacia: 'OBS', label: 'estado_cambiado', requiereObservacion: true },
-  ],
-  OBS: [
-    { desde: 'OBS', hacia: 'COR', label: 'doc_corregido', requiereObservacion: false },
-  ],
+  ING: [{ desde: 'ING', hacia: 'OBS', label: 'estado_cambiado', requiereObservacion: true }],
+  OBS: [{ desde: 'OBS', hacia: 'COR', label: 'doc_corregido', requiereObservacion: false }],
   COR: [
     { desde: 'COR', hacia: 'APB', label: 'doc_aprobado', requiereObservacion: false },
     { desde: 'COR', hacia: 'OBS', label: 'estado_cambiado', requiereObservacion: true },
@@ -29,10 +25,10 @@ const TRANSICIONES: Record<string, Transition[]> = {
 }
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  APB: { bg: '#d1fae5', text: '#065f46', border: '#a7f3d0' },
-  ING: { bg: '#dbeafe', text: '#1e40af', border: '#bfdbfe' },
-  COR: { bg: '#fef3c7', text: '#92400e', border: '#fde68a' },
-  OBS: { bg: '#fee2e2', text: '#991b1b', border: '#fecaca' },
+  APB: { bg: 'bg-[#ecfdf5]', text: 'text-[#10b981]', border: 'border-[#a7f3d0]' },
+  ING: { bg: 'bg-[#eff6ff]', text: 'text-[#3b82f6]', border: 'border-[#bfdbfe]' },
+  COR: { bg: 'bg-[#fffbeb]', text: 'text-[#f59e0b]', border: 'border-[#fde68a]' },
+  OBS: { bg: 'bg-[#fef2f2]', text: 'text-[#ef4444]', border: 'border-[#fecaca]' },
 }
 
 export function getAvailableTransitions(estado: string): Transition[] {
@@ -48,18 +44,14 @@ export default function TransitionModal({ doc, onClose, onConfirm }: TransitionM
   if (!doc) return null
 
   const transiciones = getAvailableTransitions(doc.estado)
-  const currentStatus = STATUS_COLORS[doc.estado] || { bg: '#f3f4f6', text: '#6b7280', border: '#e5e7eb' }
+  const currentSt = STATUS_COLORS[doc.estado] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]', border: 'border-[#e5e7eb]' }
 
-  const handleSelect = (t: Transition) => {
-    setTransicionSeleccionada(t)
-  }
+  const handleSelect = (t: Transition) => setTransicionSeleccionada(t)
 
   const handleContinue = () => {
     if (!transicionSeleccionada) return
     setPaso(2)
-    if (!transicionSeleccionada.requiereObservacion) {
-      setObservacion('')
-    }
+    if (!transicionSeleccionada.requiereObservacion) setObservacion('')
   }
 
   const handleConfirm = async () => {
@@ -68,190 +60,67 @@ export default function TransitionModal({ doc, onClose, onConfirm }: TransitionM
 
     setLoading(true)
     try {
-      await onConfirm(
-        doc.id,
-        transicionSeleccionada.hacia,
-        transicionSeleccionada.requiereObservacion ? observacion : undefined
-      )
+      await onConfirm(doc.id, transicionSeleccionada.hacia, transicionSeleccionada.requiereObservacion ? observacion : undefined)
       onClose()
-    } catch (e) {
-      // Error manejado por el padre
+    } catch {
+      // Error handled by parent
     } finally {
       setLoading(false)
     }
   }
 
-  const handleBack = () => {
-    setPaso(1)
-    setObservacion('')
-  }
+  const handleBack = () => { setPaso(1); setObservacion('') }
 
-  const targetStatus = transicionSeleccionada
-    ? STATUS_COLORS[transicionSeleccionada.hacia] || { bg: '#f3f4f6', text: '#6b7280', border: '#e5e7eb' }
+  const targetSt = transicionSeleccionada
+    ? STATUS_COLORS[transicionSeleccionada.hacia] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]', border: 'border-[#e5e7eb]' }
     : null
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.35)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: '#fff',
-          borderRadius: 8,
-          minWidth: 420,
-          maxWidth: 480,
-          boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
-          overflow: 'hidden',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 bg-black/35 flex items-center justify-center z-[1000]" onClick={onClose}>
+      <div className="bg-white rounded-lg min-w-[420px] max-w-[480px] shadow-xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div
-          style={{
-            padding: '20px 24px',
-            borderBottom: '1px solid #e5e7eb',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-          }}
-        >
+        <div className="px-6 py-5 border-b border-[#e5e7eb] flex items-start justify-between">
           <div>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#111827' }}>
-              Transition Document
-            </h3>
-            <p style={{ margin: '4px 0 0', fontSize: 14, color: '#6b7280' }}>{doc.nombre}</p>
+            <h3 className="text-base font-bold text-[#111827]">Transition Document</h3>
+            <p className="text-sm text-[#6b7280] mt-1">{doc.nombre}</p>
           </div>
-          <button
-            onClick={onClose}
-            style={{
-              border: 'none',
-              background: 'transparent',
-              cursor: 'pointer',
-              fontSize: 18,
-              color: '#9ca3af',
-              padding: 0,
-              width: 28,
-              height: 28,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 4,
-            }}
-          >
+          <button onClick={onClose} className="w-7 h-7 flex items-center justify-center text-[#9ca3af] hover:text-[#6b7280] transition-colors text-lg leading-none">
             &#10005;
           </button>
         </div>
 
         {/* Body */}
-        <div style={{ padding: '20px 24px' }}>
+        <div className="px-6 py-5">
           {/* Current state */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-            <span style={{ fontSize: 13, color: '#6b7280' }}>Current state:</span>
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 4,
-                padding: '3px 10px',
-                borderRadius: 4,
-                fontSize: 11,
-                fontWeight: 700,
-                background: currentStatus.bg,
-                color: currentStatus.text,
-                border: `1px solid ${currentStatus.border}`,
-                textTransform: 'uppercase',
-              }}
-            >
+          <div className="flex items-center gap-2 mb-5">
+            <span className="text-[13px] text-[#6b7280]">Current state:</span>
+            <span className={`inline-flex items-center gap-1 px-2.5 py-[3px] rounded text-[11px] font-bold uppercase border ${currentSt.bg} ${currentSt.text} ${currentSt.border}`}>
               {doc.estado}
             </span>
           </div>
 
           {paso === 1 && (
             <>
-              <p
-                style={{
-                  margin: '0 0 12px',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: '#374151',
-                }}
-              >
-                Select transition:
-              </p>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <p className="text-[13px] font-semibold text-[#374151] mb-3">Select transition:</p>
+              <div className="flex flex-col gap-2">
                 {transiciones.map((t) => {
-                  const target = STATUS_COLORS[t.hacia] || { bg: '#f3f4f6', text: '#6b7280', border: '#e5e7eb' }
+                  const tgt = STATUS_COLORS[t.hacia] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]', border: 'border-[#e5e7eb]' }
                   const isSelected = transicionSeleccionada?.hacia === t.hacia
-
                   return (
                     <button
                       key={t.hacia}
                       onClick={() => handleSelect(t)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 12,
-                        padding: '12px 16px',
-                        borderRadius: 6,
-                        border: isSelected ? '1px solid #3b82f6' : '1px solid #e5e7eb',
-                        background: isSelected ? '#eff6ff' : '#fff',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        width: '100%',
-                        transition: 'all 0.12s',
-                      }}
+                      className={[
+                        'flex items-center gap-3 px-4 py-3 rounded-md border text-left w-full transition-all cursor-pointer',
+                        isSelected ? 'border-[#3b82f6] bg-[#eff6ff]' : 'border-[#e5e7eb] bg-white hover:bg-[#f9fafb]',
+                      ].join(' ')}
                     >
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: '#6b7280',
-                          padding: '2px 8px',
-                          borderRadius: 4,
-                          background: '#f3f4f6',
-                        }}
-                      >
-                        {t.desde}
-                      </span>
-                      <span style={{ fontSize: 12, color: '#9ca3af' }}>&#8594;</span>
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: target.text,
-                          padding: '2px 8px',
-                          borderRadius: 4,
-                          background: target.bg,
-                        }}
-                      >
-                        {t.hacia}
-                      </span>
-                      <span style={{ fontSize: 12, color: '#9ca3af', marginLeft: 'auto' }}>
-                        {t.label}
-                      </span>
+                      <span className="text-xs font-semibold text-[#6b7280] px-2 py-0.5 rounded bg-[#f3f4f6]">{t.desde}</span>
+                      <span className="text-xs text-[#9ca3af]">&#8594;</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded ${tgt.bg} ${tgt.text}`}>{t.hacia}</span>
+                      <span className="text-xs text-[#9ca3af] ml-auto">{t.label}</span>
                       {t.requiereObservacion && (
-                        <span
-                          style={{
-                            fontSize: 10,
-                            color: '#f59e0b',
-                            background: '#fffbeb',
-                            padding: '2px 6px',
-                            borderRadius: 4,
-                            border: '1px solid #fde68a',
-                          }}
-                        >
-                          req: observacion
-                        </span>
+                        <span className="text-[10px] text-[#f59e0b] bg-[#fffbeb] px-1.5 py-0.5 rounded border border-[#fde68a]">req: observacion</span>
                       )}
                     </button>
                   )
@@ -260,105 +129,33 @@ export default function TransitionModal({ doc, onClose, onConfirm }: TransitionM
             </>
           )}
 
-          {paso === 2 && transicionSeleccionada && targetStatus && (
+          {paso === 2 && transicionSeleccionada && targetSt && (
             <>
-              {/* Confirm transition box */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  padding: '14px 16px',
-                  borderRadius: 6,
-                  border: '1px solid #a7f3d0',
-                  background: '#ecfdf5',
-                  marginBottom: 16,
-                }}
-              >
-                <span
-                  style={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: '50%',
-                    background: '#10b981',
-                    color: '#fff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 12,
-                    flexShrink: 0,
-                  }}
-                >
-                  &#10003;
-                </span>
+              <div className="flex items-center gap-3 px-4 py-3.5 rounded-md border border-[#a7f3d0] bg-[#ecfdf5] mb-4">
+                <span className="w-5 h-5 rounded-full bg-[#10b981] text-white flex items-center justify-center text-xs shrink-0">&#10003;</span>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#065f46' }}>
-                    Confirm transition
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: currentStatus.text,
-                        padding: '1px 6px',
-                        borderRadius: 3,
-                        background: currentStatus.bg,
-                      }}
-                    >
-                      {transicionSeleccionada.desde}
-                    </span>
-                    <span style={{ fontSize: 11, color: '#9ca3af' }}>&#8594;</span>
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: targetStatus.text,
-                        padding: '1px 6px',
-                        borderRadius: 3,
-                        background: targetStatus.bg,
-                      }}
-                    >
-                      {transicionSeleccionada.hacia}
-                    </span>
+                  <div className="text-[13px] font-semibold text-[#065f46]">Confirm transition</div>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span className={`text-[11px] font-bold px-1.5 py-[1px] rounded ${currentSt.bg} ${currentSt.text}`}>{transicionSeleccionada.desde}</span>
+                    <span className="text-[11px] text-[#9ca3af]">&#8594;</span>
+                    <span className={`text-[11px] font-bold px-1.5 py-[1px] rounded ${targetSt.bg} ${targetSt.text}`}>{transicionSeleccionada.hacia}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Observation field (if required) */}
               {transicionSeleccionada.requiereObservacion && (
-                <div style={{ marginBottom: 16 }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      marginBottom: 8,
-                    }}
-                  >
-                    <span style={{ fontSize: 13, color: '#f59e0b' }}>&#9888;</span>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>
-                      Observation (required)
-                    </span>
+                <div className="mb-4">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <span className="text-[13px] text-[#f59e0b]">&#9888;</span>
+                    <span className="text-[13px] font-semibold text-[#374151]">Observation (required)</span>
                   </div>
                   <textarea
                     value={observacion}
                     onChange={(e) => setObservacion(e.target.value)}
                     placeholder="Enter observation for this transition..."
-                    style={{
-                      width: '100%',
-                      minHeight: 80,
-                      padding: 10,
-                      borderRadius: 6,
-                      border: '1px solid #fde68a',
-                      background: '#fffbeb',
-                      fontFamily: 'inherit',
-                      fontSize: 13,
-                      resize: 'vertical',
-                      outline: 'none',
-                    }}
+                    className="w-full min-h-[80px] p-2.5 rounded-md border border-[#fde68a] bg-[#fffbeb] text-[13px] resize-y outline-none focus:border-[#f59e0b]"
                   />
-                  <p style={{ margin: '6px 0 0', fontSize: 12, color: '#f59e0b' }}>
+                  <p className="text-xs text-[#f59e0b] mt-1.5">
                     Required for {transicionSeleccionada.desde} &#8594; {transicionSeleccionada.hacia}
                   </p>
                 </div>
@@ -368,95 +165,30 @@ export default function TransitionModal({ doc, onClose, onConfirm }: TransitionM
         </div>
 
         {/* Footer */}
-        <div
-          style={{
-            padding: '16px 24px',
-            borderTop: '1px solid #e5e7eb',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: 10,
-          }}
-        >
+        <div className="px-6 py-4 border-t border-[#e5e7eb] flex justify-end gap-2.5">
           {paso === 1 && (
             <>
-              <button
-                onClick={onClose}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: 6,
-                  border: '1px solid #e5e7eb',
-                  background: '#fff',
-                  cursor: 'pointer',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: '#374151',
-                }}
-              >
-                Cancel
-              </button>
+              <button onClick={onClose} className="px-4 py-2 rounded-md border border-[#e5e7eb] bg-white text-[#374151] text-[13px] font-medium hover:bg-[#f9fafb] transition-colors">Cancel</button>
               <button
                 onClick={handleContinue}
                 disabled={!transicionSeleccionada}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: 6,
-                  border: '1px solid #111827',
-                  background: transicionSeleccionada ? '#111827' : '#9ca3af',
-                  color: '#fff',
-                  cursor: transicionSeleccionada ? 'pointer' : 'not-allowed',
-                  fontSize: 13,
-                  fontWeight: 500,
-                }}
+                className={`px-4 py-2 rounded-md border text-[13px] font-medium text-white transition-colors ${transicionSeleccionada ? 'border-[#111827] bg-[#111827] hover:bg-[#374151] cursor-pointer' : 'border-[#9ca3af] bg-[#9ca3af] cursor-not-allowed'}`}
               >
                 Continue
               </button>
             </>
           )}
-
           {paso === 2 && (
             <>
-              <button
-                onClick={handleBack}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: 6,
-                  border: '1px solid #e5e7eb',
-                  background: '#fff',
-                  cursor: 'pointer',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: '#374151',
-                }}
-              >
-                Back
-              </button>
+              <button onClick={handleBack} className="px-4 py-2 rounded-md border border-[#e5e7eb] bg-white text-[#374151] text-[13px] font-medium hover:bg-[#f9fafb] transition-colors">Back</button>
               <button
                 onClick={handleConfirm}
-                disabled={
-                  loading ||
-                  (transicionSeleccionada?.requiereObservacion && !observacion.trim())
-                }
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: 6,
-                  border: '1px solid #111827',
-                  background:
-                    loading ||
-                    (transicionSeleccionada?.requiereObservacion && !observacion.trim())
-                      ? '#9ca3af'
-                      : '#111827',
-                  color: '#fff',
-                  cursor:
-                    loading ||
-                    (transicionSeleccionada?.requiereObservacion && !observacion.trim())
-                      ? 'not-allowed'
-                      : 'pointer',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                }}
+                disabled={loading || (transicionSeleccionada?.requiereObservacion && !observacion.trim())}
+                className={`px-4 py-2 rounded-md border text-[13px] font-medium text-white flex items-center gap-1.5 transition-colors ${
+                  loading || (transicionSeleccionada?.requiereObservacion && !observacion.trim())
+                    ? 'border-[#9ca3af] bg-[#9ca3af] cursor-not-allowed'
+                    : 'border-[#111827] bg-[#111827] hover:bg-[#374151] cursor-pointer'
+                }`}
               >
                 {loading && <span>&#8635;</span>}
                 &#128274; Confirm

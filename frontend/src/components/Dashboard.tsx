@@ -29,7 +29,6 @@ export default function Dashboard() {
 
   const proyecto = detalle?.proyecto
 
-  // Toast al cargar proyecto
   useEffect(() => {
     if (proyecto) {
       setToast(`Project loaded: ${proyecto.nombre}`)
@@ -54,133 +53,51 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={{ display: 'flex', gap: 24, height: '100%', position: 'relative' }}>
-      {/* Toast notification */}
+    <div className="flex gap-6 h-full relative">
+      {/* Toast */}
       {toast && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 70,
-            right: 24,
-            zIndex: 2000,
-            background: '#ecfdf5',
-            border: '1px solid #a7f3d0',
-            borderRadius: 8,
-            padding: '12px 18px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-            animation: 'slideIn 0.3s ease',
-          }}
-        >
-          <span
-            style={{
-              width: 18,
-              height: 18,
-              borderRadius: '50%',
-              background: '#10b981',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 10,
-              flexShrink: 0,
-            }}
-          >
+        <div className="fixed top-[70px] right-6 z-50 bg-[#ecfdf5] border border-[#a7f3d0] rounded-lg px-4 py-3 flex items-center gap-2 shadow-md animate-[slideIn_0.3s_ease]">
+          <span className="w-[18px] h-[18px] rounded-full bg-[#10b981] text-white flex items-center justify-center text-[10px] shrink-0">
             &#10003;
           </span>
-          <span style={{ fontSize: 13, fontWeight: 500, color: '#065f46' }}>{toast}</span>
+          <span className="text-[13px] font-medium text-[#065f46]">{toast}</span>
         </div>
       )}
 
       {/* Main content */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Subheader */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 16,
-          }}
-        >
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between items-center mb-4">
           <div>
-            <h1
-              style={{
-                margin: 0,
-                fontSize: 18,
-                fontWeight: 600,
-                color: '#111827',
-              }}
-            >
-              {proyecto?.nombre || 'Dashboard'}
-            </h1>
-            <p style={{ margin: '4px 0 0', fontSize: 13, color: '#9ca3af' }}>
-              Engineering Designs
-            </p>
+            <h1 className="text-lg font-semibold text-[#111827]">{proyecto?.nombre || 'Dashboard'}</h1>
+            <p className="text-[13px] text-[#9ca3af] mt-1">Engineering Designs</p>
           </div>
           <ExportButton entidad="documentos" />
         </div>
 
         {loading ? (
-          <p style={{ padding: 24, color: '#9ca3af', textAlign: 'center' }}>
-            Loading documents...
-          </p>
+          <p className="p-6 text-center text-[#9ca3af]">Loading documents...</p>
         ) : (
           <DocumentTable documentos={documentos} onAction={handleAction} />
         )}
       </div>
 
       {/* Right sidebar */}
-      <div
-        style={{
-          width: 320,
-          flexShrink: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-        }}
-      >
-        {/* Timeline */}
-        <div
-          style={{ border: '1px solid #e5e7eb', borderRadius: 8, background: '#fff' }}
-        >
-          {proyecto ? (
-            <ProjectTimeline etapaActual={proyecto.etapa_actual} />
-          ) : (
-            <div style={{ padding: 16, color: '#9ca3af' }}>Loading timeline...</div>
-          )}
+      <div className="w-80 shrink-0 flex flex-col gap-4">
+        <div className="border border-[#e5e7eb] rounded-lg bg-white">
+          {proyecto ? <ProjectTimeline etapaActual={proyecto.etapa_actual} /> : <div className="p-4 text-[#9ca3af]">Loading timeline...</div>}
         </div>
-
-        {/* Traceability */}
-        <div
-          style={{ border: '1px solid #e5e7eb', borderRadius: 8, background: '#fff' }}
-        >
-          {loadingTrace ? (
-            <div style={{ padding: 16, color: '#9ca3af' }}>Loading traceability...</div>
-          ) : (
-            <TraceabilitySummary porModulo={porModulo} />
-          )}
+        <div className="border border-[#e5e7eb] rounded-lg bg-white">
+          {loadingTrace ? <div className="p-4 text-[#9ca3af]">Loading traceability...</div> : <TraceabilitySummary porModulo={porModulo} />}
         </div>
-
-        {/* Quick Actions */}
-        <div
-          style={{ border: '1px solid #e5e7eb', borderRadius: 8, background: '#fff' }}
-        >
-          <QuickActions
-            onUpload={() => navigate('/documents')}
-            onReport={() => navigate('/modules')}
-          />
+        <div className="border border-[#e5e7eb] rounded-lg bg-white">
+          <QuickActions onUpload={() => navigate('/documents')} onReport={() => navigate('/modules')} />
         </div>
       </div>
 
       {/* Transition Modal */}
       <TransitionModal
         doc={docSeleccionado}
-        onClose={() => {
-          setDocSeleccionado(null)
-        }}
+        onClose={() => setDocSeleccionado(null)}
         onConfirm={handleConfirmTransition}
       />
     </div>

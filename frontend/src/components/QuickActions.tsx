@@ -1,4 +1,4 @@
-import { UploadIcon, BarChartIcon } from './Icons'
+import { Upload, BarChart3 } from 'lucide-react'
 
 interface QuickActionsProps {
   onUpload: () => void
@@ -7,66 +7,24 @@ interface QuickActionsProps {
 
 export default function QuickActions({ onUpload, onReport }: QuickActionsProps) {
   return (
-    <div style={{ padding: '16px 20px 20px' }}>
-      <h3
-        style={{
-          margin: '0 0 16px',
-          fontSize: 13,
-          fontWeight: 700,
-          color: '#374151',
-          textTransform: 'uppercase',
-          letterSpacing: 0.5,
-          fontFamily: 'inherit',
-        }}
-      >
+    <div className="px-5 pt-4 pb-5">
+      <h3 className="text-[13px] font-bold text-[#374151] uppercase tracking-[0.5px] mb-4">
         Quick Actions
       </h3>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div className="flex flex-col gap-2">
         <button
           onClick={onUpload}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            padding: '10px 16px',
-            borderRadius: 6,
-            border: '1px solid #e5e7eb',
-            background: '#fff',
-            color: '#374151',
-            fontSize: 13,
-            fontWeight: 500,
-            cursor: 'pointer',
-            width: '100%',
-            fontFamily: 'inherit',
-            lineHeight: '18px',
-          }}
+          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-md border border-[#e5e7eb] bg-white text-[#374151] text-[13px] font-medium hover:bg-[#f9fafb] transition-colors leading-[18px]"
         >
-          <UploadIcon size={14} color="#6b7280" />
+          <Upload className="w-3.5 h-3.5 text-[#6b7280]" strokeWidth={2} />
           Upload New Document
         </button>
         <button
           onClick={onReport}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            padding: '10px 16px',
-            borderRadius: 6,
-            border: '1px solid #e5e7eb',
-            background: '#fff',
-            color: '#374151',
-            fontSize: 13,
-            fontWeight: 500,
-            cursor: 'pointer',
-            width: '100%',
-            fontFamily: 'inherit',
-            lineHeight: '18px',
-          }}
+          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-md border border-[#e5e7eb] bg-white text-[#374151] text-[13px] font-medium hover:bg-[#f9fafb] transition-colors leading-[18px]"
         >
-          <BarChartIcon size={14} color="#6b7280" />
+          <BarChart3 className="w-3.5 h-3.5 text-[#6b7280]" strokeWidth={2} />
           Generate Report
         </button>
       </div>

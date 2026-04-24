@@ -2,25 +2,35 @@ import { Outlet, NavLink } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useProyectoActivoContext } from '../context/ProyectoActivoContext'
 import ProjectSelector from './ProjectSelector'
-import { HomeIcon, FileTextIcon, FolderIcon, GridIcon, UsersIcon, SettingsIcon, SearchIcon, BellIcon, UserIcon } from './Icons'
+import {
+  Home,
+  FileText,
+  Folder,
+  LayoutGrid,
+  Users,
+  Settings,
+  Search,
+  Bell,
+  User,
+} from 'lucide-react'
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: HomeIcon },
-  { to: '/documents', label: 'Documents', icon: FileTextIcon },
-  { to: '/modules', label: 'Modules', icon: FolderIcon },
-  { to: '/tasks', label: 'My Tasks', icon: GridIcon },
-  { to: '/users', label: 'Users & Roles', icon: UsersIcon },
-  { to: '/settings', label: 'Settings', icon: SettingsIcon },
+  { to: '/', label: 'Dashboard', icon: Home },
+  { to: '/documents', label: 'Documents', icon: FileText },
+  { to: '/modules', label: 'Modules', icon: Folder },
+  { to: '/tasks', label: 'My Tasks', icon: LayoutGrid },
+  { to: '/users', label: 'Users & Roles', icon: Users },
+  { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
 function Breadcrumb() {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#9ca3af', fontFamily: 'inherit' }}>
+    <div className="flex items-center gap-2 text-[13px] text-[#9ca3af]">
       <span>Dashboard</span>
-      <span style={{ color: '#d1d5db' }}>/</span>
+      <span className="text-[#d1d5db]">/</span>
       <span>Projects</span>
-      <span style={{ color: '#d1d5db' }}>/</span>
-      <span style={{ color: '#374151', fontWeight: 500 }}>Engineering Designs</span>
+      <span className="text-[#d1d5db]">/</span>
+      <span className="text-[#374151] font-medium">Engineering Designs</span>
     </div>
   )
 }
@@ -30,55 +40,32 @@ export default function Layout() {
   const { proyectoActivoId, cambiarProyecto } = useProyectoActivoContext()
 
   return (
-    <div style={{
-      display: 'flex',
-      height: '100vh',
-      background: '#f8f9fa',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      color: '#111827',
-    }}>
+    <div className="flex h-screen bg-[#f8f9fa] font-sans text-[#111827]">
       {/* Sidebar */}
-      <aside
-        style={{
-          width: 240,
-          background: '#f8f9fa',
-          borderRight: '1px solid #e5e7eb',
-          padding: '24px 12px',
-          display: 'flex',
-          flexDirection: 'column',
-          flexShrink: 0,
-        }}
-      >
-        <div style={{ marginBottom: 32, paddingLeft: 12 }}>
-          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#111827', letterSpacing: 0.5 }}>FBS</h2>
-          <p style={{ margin: '4px 0 0', fontSize: 11, color: '#9ca3af' }}>Document Control System</p>
+      <aside className="w-[240px] bg-[#f8f9fa] border-r border-[#e5e7eb] flex flex-col shrink-0">
+        {/* Logo */}
+        <div className="px-5 pt-6 pb-8">
+          <h2 className="text-[20px] font-bold text-[#111827] tracking-[0.5px]">FBS</h2>
+          <p className="text-[11px] text-[#9ca3af] mt-1">Document Control System</p>
         </div>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+        {/* Nav */}
+        <nav className="flex-1 py-4 px-3">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.to === '/'}
-              style={({ isActive }) => ({
-                padding: '9px 12px',
-                borderRadius: 8,
-                textDecoration: 'none',
-                color: isActive ? '#111827' : '#6b7280',
-                background: isActive ? '#ffffff' : 'transparent',
-                fontSize: 14,
-                fontWeight: isActive ? 500 : 400,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                border: isActive ? '1px solid #e5e7eb' : '1px solid transparent',
-                boxShadow: isActive ? '0 1px 2px rgba(0,0,0,0.04)' : 'none',
-                transition: 'all 0.12s',
-              })}
+              className={({ isActive }) =>
+                [
+                  'w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium rounded-lg transition-colors',
+                  isActive
+                    ? 'bg-white text-[#1f2937] shadow-sm border border-[#e5e7eb]'
+                    : 'text-[#6b7280] hover:text-[#374151] hover:bg-[#f0f1f3]',
+                ].join(' ')
+              }
             >
-              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 18 }}>
-                <item.icon size={18} color="currentColor" />
-              </span>
+              <item.icon className="w-[18px] h-[18px] shrink-0 text-[#4b5563]" strokeWidth={2} />
               {item.label}
             </NavLink>
           ))}
@@ -86,24 +73,14 @@ export default function Layout() {
 
         {/* Footer sidebar */}
         {user && (
-          <div style={{ paddingTop: 16, borderTop: '1px solid #e5e7eb', marginTop: 'auto' }}>
-            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 10, paddingLeft: 12 }}>
-              <div style={{ fontWeight: 600, color: '#374151' }}>{user.username}</div>
-              <div style={{ textTransform: 'uppercase', fontSize: 10, color: '#9ca3af', marginTop: 2 }}>{user.rol}</div>
+          <div className="px-3 pt-4 pb-5 border-t border-[#e5e7eb]">
+            <div className="text-[12px] text-[#6b7280] mb-3 px-3">
+              <div className="font-semibold text-[#374151]">{user.username}</div>
+              <div className="uppercase text-[10px] text-[#9ca3af] mt-0.5">{user.rol}</div>
             </div>
             <button
               onClick={logout}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: 6,
-                border: '1px solid #e5e7eb',
-                background: '#fff',
-                color: '#6b7280',
-                cursor: 'pointer',
-                fontSize: 13,
-                fontWeight: 500,
-              }}
+              className="w-full py-2 px-3 rounded-md border border-[#e5e7eb] bg-white text-[#6b7280] text-[13px] font-medium hover:bg-[#f9fafb] transition-colors"
             >
               Cerrar sesion
             </button>
@@ -112,110 +89,41 @@ export default function Layout() {
       </aside>
 
       {/* Main area */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header
-          style={{
-            height: 56,
-            background: '#fff',
-            borderBottom: '1px solid #e5e7eb',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 24px',
-            flexShrink: 0,
-          }}
-        >
-          <div>
-            <Breadcrumb />
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <header className="h-14 bg-white border-b border-[#e5e7eb] flex items-center justify-between px-6 shrink-0">
+          <Breadcrumb />
+          <div className="flex items-center gap-4">
             <ProjectSelector value={proyectoActivoId} onChange={cambiarProyecto} />
-            <button
-              style={{
-                padding: '6px 14px',
-                borderRadius: 6,
-                border: '1px solid #111827',
-                background: '#111827',
-                color: '#fff',
-                fontSize: 13,
-                fontWeight: 500,
-                cursor: 'pointer',
-              }}
-            >
+            <button className="px-3.5 py-1.5 rounded-md border border-[#111827] bg-[#111827] text-white text-[13px] font-medium hover:bg-[#374151] transition-colors">
               Edit Project
             </button>
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <div className="flex items-center gap-1.5">
               <button
-                style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 6,
-                  border: '1px solid #e5e7eb',
-                  background: '#fff',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#6b7280',
-                }}
+                className="w-[34px] h-[34px] rounded-md border border-[#e5e7eb] bg-white flex items-center justify-center text-[#6b7280] hover:bg-[#f9fafb] transition-colors"
                 title="Buscar"
               >
-                <SearchIcon size={16} />
+                <Search className="w-4 h-4" strokeWidth={2} />
               </button>
               <button
-                style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 6,
-                  border: '1px solid #e5e7eb',
-                  background: '#fff',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#6b7280',
-                  position: 'relative',
-                }}
+                className="w-[34px] h-[34px] rounded-md border border-[#e5e7eb] bg-white flex items-center justify-center text-[#6b7280] hover:bg-[#f9fafb] transition-colors relative"
                 title="Notificaciones"
               >
-                <BellIcon size={16} />
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: -2,
-                    right: -2,
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    background: '#ef4444',
-                    border: '2px solid #fff',
-                  }}
-                />
+                <Bell className="w-4 h-4" strokeWidth={2} />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 border-2 border-white" />
               </button>
               <button
-                style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 6,
-                  border: '1px solid #e5e7eb',
-                  background: '#fff',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#6b7280',
-                }}
+                className="w-[34px] h-[34px] rounded-md border border-[#e5e7eb] bg-white flex items-center justify-center text-[#6b7280] hover:bg-[#f9fafb] transition-colors"
                 title="Perfil"
               >
-                <UserIcon size={16} />
+                <User className="w-4 h-4" strokeWidth={2} />
               </button>
             </div>
           </div>
         </header>
 
         {/* Content */}
-        <main style={{ flex: 1, padding: 24, overflow: 'auto' }}>
+        <main className="flex-1 p-6 overflow-auto">
           <Outlet />
         </main>
       </div>

@@ -7,17 +7,24 @@ interface DocumentTableProps {
   onAction?: (doc: Documento) => void
 }
 
-const STATUS_COLORS: Record<string, { bg: string; text: string; border: string; icon: string }> = {
-  APB: { bg: '#ecfdf5', text: '#10b981', border: '#a7f3d0', icon: '&#10003;' },
-  ING: { bg: '#eff6ff', text: '#3b82f6', border: '#bfdbfe', icon: '&#9711;' },
-  COR: { bg: '#fffbeb', text: '#f59e0b', border: '#fde68a', icon: '&#8635;' },
-  OBS: { bg: '#fef2f2', text: '#ef4444', border: '#fecaca', icon: '&#8856;' },
+const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  APB: { bg: 'bg-[#ecfdf5]', text: 'text-[#10b981]', border: 'border-[#a7f3d0]' },
+  ING: { bg: 'bg-[#eff6ff]', text: 'text-[#3b82f6]', border: 'border-[#bfdbfe]' },
+  COR: { bg: 'bg-[#fffbeb]', text: 'text-[#f59e0b]', border: 'border-[#fde68a]' },
+  OBS: { bg: 'bg-[#fef2f2]', text: 'text-[#ef4444]', border: 'border-[#fecaca]' },
 }
 
 const MODULE_COLORS: Record<string, { bg: string; text: string }> = {
-  EST: { bg: '#dbeafe', text: '#3b82f6' },
-  HAB: { bg: '#d1fae5', text: '#10b981' },
-  MDS: { bg: '#fef3c7', text: '#f59e0b' },
+  EST: { bg: 'bg-[#dbeafe]', text: 'text-[#3b82f6]' },
+  HAB: { bg: 'bg-[#d1fae5]', text: 'text-[#10b981]' },
+  MDS: { bg: 'bg-[#fef3c7]', text: 'text-[#f59e0b]' },
+}
+
+const STATUS_ICON: Record<string, string> = {
+  APB: '&#10003;',
+  ING: '&#9711;',
+  COR: '&#8635;',
+  OBS: '&#8856;',
 }
 
 export function formatDocumentId(doc: Documento): string {
@@ -36,58 +43,29 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
   const toggleExpand = (id: number) => {
     setExpandedIds((prev) => {
       const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
-      }
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       return next
     })
   }
 
   if (documentos.length === 0) {
     return (
-      <div
-        style={{
-          padding: 40,
-          textAlign: 'center',
-          color: '#9ca3af',
-          border: '1px dashed #e5e7eb',
-          borderRadius: 8,
-          background: '#fff',
-          fontSize: 14,
-        }}
-      >
+      <div className="p-10 text-center text-[#9ca3af] border border-dashed border-[#e5e7eb] rounded-lg bg-white text-sm">
         No documents found for this project.
       </div>
     )
   }
 
   return (
-    <div
-      style={{
-        background: '#fff',
-        borderRadius: 8,
-        border: '1px solid #e5e7eb',
-        overflow: 'hidden',
-      }}
-    >
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, fontFamily: 'inherit' }}>
+    <div className="bg-white rounded-lg border border-[#e5e7eb] overflow-hidden">
+      <table className="w-full border-collapse text-sm">
         <thead>
-          <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+          <tr className="border-b border-[#e5e7eb]">
             {['DOCUMENT ID', 'TITLE', 'MODULE', 'STATUS', 'LAST UPDATE', 'ACTIONS'].map((h) => (
               <th
                 key={h}
-                style={{
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  fontWeight: 600,
-                  color: '#9ca3af',
-                  fontSize: 11,
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.5,
-                  fontFamily: 'inherit',
-                }}
+                className="px-4 py-3 text-left font-semibold text-[11px] text-[#9ca3af] uppercase tracking-[0.5px]"
               >
                 {h}
               </th>
@@ -96,173 +74,65 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
         </thead>
         <tbody>
           {documentos.map((doc) => {
-            const status = STATUS_COLORS[doc.estado] || {
-              bg: '#f3f4f6',
-              text: '#6b7280',
-              border: '#e5e7eb',
-              icon: '',
-            }
-            const mod = MODULE_COLORS[doc.modulo] || { bg: '#f3f4f6', text: '#6b7280' }
+            const st = STATUS_COLORS[doc.estado] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]', border: 'border-[#e5e7eb]' }
+            const mod = MODULE_COLORS[doc.modulo] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]' }
             const fecha = formatFecha(doc.fecha_modificacion)
             const docId = formatDocumentId(doc)
             const isExpanded = expandedIds.has(doc.id)
             const transiciones = getAvailableTransitions(doc.estado)
 
             return (
-              <tr
-                key={doc.id}
-                style={{
-                  borderBottom: '1px solid #f3f4f6',
-                  transition: 'background 0.12s',
-                }}
-              >
-                {/* Document ID: clickable area to expand */}
-                <td
-                  style={{ padding: '12px 16px', verticalAlign: 'top', cursor: 'pointer' }}
-                  onClick={() => toggleExpand(doc.id)}
-                >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+              <tr key={doc.id} className="border-b border-[#f3f4f6]">
+                {/* Document ID */}
+                <td className="px-4 py-3 align-top cursor-pointer" onClick={() => toggleExpand(doc.id)}>
+                  <div className="flex items-start gap-2.5">
                     <span
-                      style={{
-                        fontSize: 10,
-                        color: '#9ca3af',
-                        marginTop: 3,
-                        display: 'inline-block',
-                        transition: 'transform 0.15s',
-                        transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                        userSelect: 'none',
-                        flexShrink: 0,
-                      }}
+                      className="text-[10px] text-[#9ca3af] mt-0.5 shrink-0 transition-transform duration-150 select-none"
+                      style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
                     >
                       &#9656;
                     </span>
-                    <div style={{ minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: '#111827',
-                          lineHeight: '20px',
-                        }}
-                      >
-                        {doc.nombre}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: '#9ca3af',
-                          fontFamily: 'monospace',
-                          marginTop: 2,
-                          lineHeight: '16px',
-                        }}
-                      >
-                        {docId}
-                      </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-[#111827] leading-5">{doc.nombre}</div>
+                      <div className="text-xs text-[#9ca3af] font-mono mt-0.5 leading-4">{docId}</div>
 
-                      {/* EXPANDED: Transition History + Available Transitions */}
+                      {/* Expanded content */}
                       {isExpanded && (
-                        <div style={{ marginTop: 14, marginLeft: 2 }}>
+                        <div className="mt-3.5 ml-1">
                           {/* Transition History */}
-                          <div style={{ marginBottom: 12 }}>
-                            <div
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 6,
-                                marginBottom: 6,
-                              }}
-                            >
-                              <span style={{ fontSize: 11, color: '#9ca3af' }}>&#8635;</span>
-                              <span
-                                style={{
-                                  fontSize: 10,
-                                  fontWeight: 700,
-                                  color: '#9ca3af',
-                                  textTransform: 'uppercase',
-                                  letterSpacing: 0.5,
-                                }}
-                              >
+                          <div className="mb-3">
+                            <div className="flex items-center gap-1.5 mb-1.5">
+                              <span className="text-[11px] text-[#9ca3af]">&#8635;</span>
+                              <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-[0.5px]">
                                 Transition History
                               </span>
                             </div>
-                            <p
-                              style={{
-                                margin: 0,
-                                fontSize: 12,
-                                color: '#d1d5db',
-                                fontStyle: 'italic',
-                                paddingLeft: 18,
-                              }}
-                            >
-                              No transitions recorded
-                            </p>
+                            <p className="text-xs text-[#d1d5db] italic pl-4">No transitions recorded</p>
                           </div>
 
                           {/* Available Transitions */}
                           {transiciones.length > 0 && (
                             <div>
-                              <div
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 6,
-                                  marginBottom: 8,
-                                }}
-                              >
-                                <span style={{ fontSize: 11, color: '#9ca3af' }}>&#8594;</span>
-                                <span
-                                  style={{
-                                    fontSize: 10,
-                                    fontWeight: 700,
-                                    color: '#9ca3af',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: 0.5,
-                                  }}
-                                >
+                              <div className="flex items-center gap-1.5 mb-2">
+                                <span className="text-[11px] text-[#9ca3af]">&#8594;</span>
+                                <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-[0.5px]">
                                   Available Transitions
                                 </span>
                               </div>
-                              <div style={{ display: 'flex', gap: 8, paddingLeft: 18, flexWrap: 'wrap' }}>
+                              <div className="flex gap-2 pl-4 flex-wrap">
                                 {transiciones.map((t) => {
-                                  const target =
-                                    STATUS_COLORS[t.hacia] || {
-                                      bg: '#f3f4f6',
-                                      text: '#6b7280',
-                                      border: '#e5e7eb',
-                                      icon: '',
-                                    }
+                                  const tgt = STATUS_COLORS[t.hacia] || { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]', border: 'border-[#e5e7eb]' }
                                   return (
                                     <button
                                       key={t.hacia}
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        onAction && onAction(doc)
-                                      }}
-                                      style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 4,
-                                        padding: '3px 8px',
-                                        borderRadius: 4,
-                                        border: `1px solid ${target.border}`,
-                                        background: target.bg,
-                                        color: target.text,
-                                        fontSize: 11,
-                                        fontWeight: 600,
-                                        cursor: 'pointer',
-                                        fontFamily: 'inherit',
-                                        lineHeight: '16px',
-                                      }}
+                                      onClick={(e) => { e.stopPropagation(); onAction && onAction(doc) }}
+                                      className={`flex items-center gap-1 px-2 py-[3px] rounded text-[11px] font-semibold border ${tgt.bg} ${tgt.text} ${tgt.border} leading-4 cursor-pointer hover:opacity-80 transition-opacity`}
                                     >
-                                      <span style={{ fontSize: 10, fontWeight: 700, color: '#6b7280' }}>
-                                        {t.desde}
-                                      </span>
-                                      <span style={{ fontSize: 10, color: '#9ca3af' }}>&#8594;</span>
-                                      <span style={{ fontSize: 10, fontWeight: 700 }}>{t.hacia}</span>
+                                      <span className="text-[10px] font-bold text-[#6b7280]">{t.desde}</span>
+                                      <span className="text-[10px] text-[#9ca3af]">&#8594;</span>
+                                      <span className="text-[10px] font-bold">{t.hacia}</span>
                                       {t.requiereObservacion && (
-                                        <span style={{ fontSize: 9, color: '#9ca3af', marginLeft: 2 }}>
-                                          (needs observacion)
-                                        </span>
+                                        <span className="text-[9px] text-[#9ca3af] ml-0.5">(needs observacion)</span>
                                       )}
                                     </button>
                                   )
@@ -277,105 +147,34 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
                 </td>
 
                 {/* Title */}
-                <td
-                  style={{
-                    padding: '12px 16px',
-                    color: '#374151',
-                    fontSize: 14,
-                    verticalAlign: 'top',
-                    lineHeight: '20px',
-                  }}
-                >
-                  {doc.nombre}
-                </td>
+                <td className="px-4 py-3 text-sm text-[#374151] align-top leading-5">{doc.nombre}</td>
 
-                {/* Module pill */}
-                <td style={{ padding: '12px 16px', verticalAlign: 'top' }}>
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      padding: '2px 8px',
-                      borderRadius: 4,
-                      fontSize: 11,
-                      fontWeight: 700,
-                      background: mod.bg,
-                      color: mod.text,
-                      textTransform: 'uppercase',
-                      lineHeight: '14px',
-                    }}
-                  >
+                {/* Module */}
+                <td className="px-4 py-3 align-top">
+                  <span className={`inline-block px-2 py-[2px] rounded text-[11px] font-bold uppercase leading-[14px] ${mod.bg} ${mod.text}`}>
                     {doc.modulo}
                   </span>
                 </td>
 
-                {/* Status pill */}
-                <td style={{ padding: '12px 16px', verticalAlign: 'top' }}>
-                  <span
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 4,
-                      padding: '3px 10px',
-                      borderRadius: 12,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      background: status.bg,
-                      color: status.text,
-                      border: `1px solid ${status.border}`,
-                      lineHeight: '16px',
-                    }}
-                  >
-                    <span
-                      style={{ fontSize: 11, display: 'inline-flex', alignItems: 'center' }}
-                      dangerouslySetInnerHTML={{ __html: status.icon }}
-                    />
+                {/* Status */}
+                <td className="px-4 py-3 align-top">
+                  <span className={`inline-flex items-center gap-1 px-2.5 py-[3px] rounded-full text-xs font-semibold border ${st.bg} ${st.text} ${st.border} leading-4`}>
+                    <span className="text-[11px] inline-flex items-center" dangerouslySetInnerHTML={{ __html: STATUS_ICON[doc.estado] || '' }} />
                     {doc.estado}
                   </span>
                 </td>
 
                 {/* Last Update */}
-                <td
-                  style={{
-                    padding: '12px 16px',
-                    color: '#6b7280',
-                    fontSize: 13,
-                    verticalAlign: 'top',
-                    lineHeight: '20px',
-                  }}
-                >
-                  {fecha}
-                </td>
+                <td className="px-4 py-3 text-[13px] text-[#6b7280] align-top leading-5">{fecha}</td>
 
                 {/* Actions */}
-                <td style={{ padding: '12px 16px', verticalAlign: 'top' }}>
+                <td className="px-4 py-3 align-top">
                   {doc.estado === 'APB' ? (
-                    <span
-                      style={{
-                        fontSize: 14,
-                        color: '#d1d5db',
-                        cursor: 'default',
-                        display: 'inline-block',
-                      }}
-                      title="Aprobado"
-                    >
-                      &#128274;
-                    </span>
+                    <span className="text-sm text-[#d1d5db] cursor-default inline-block" title="Aprobado">&#128274;</span>
                   ) : (
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onAction && onAction(doc)
-                      }}
-                      style={{
-                        padding: '2px 6px',
-                        fontSize: 14,
-                        border: 'none',
-                        background: 'transparent',
-                        cursor: 'pointer',
-                        color: '#9ca3af',
-                        borderRadius: 4,
-                        lineHeight: 1,
-                      }}
+                      onClick={(e) => { e.stopPropagation(); onAction && onAction(doc) }}
+                      className="px-1.5 py-0.5 text-sm text-[#9ca3af] hover:text-[#6b7280] transition-colors leading-none"
                       title="Acciones"
                     >
                       &#8942;
