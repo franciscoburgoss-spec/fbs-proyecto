@@ -33,3 +33,4 @@ export function useAuditoria() {
   }, [])
 
   return { eventos, stats, loading, error, cargar }
+}

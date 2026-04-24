@@ -66,4 +66,29 @@ export default function Layout() {
         {/* Footer del sidebar con usuario y logout */}
         {user && (
           <div style={{ borderTop: '1px solid #eee', paddingTop: 12, marginTop: 'auto' }}>
-            <div style={{ fo
+            <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>
+              {user.username} ({user.rol})
+            </div>
+            <button
+              onClick={logout}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #ddd',
+                borderRadius: 4,
+                background: '#fff',
+                cursor: 'pointer',
+                fontSize: 13,
+              }}
+            >
+              Cerrar sesion
+            </button>
+          </div>
+        )}
+      </aside>
+      <main style={{ flex: 1, padding: 24, overflow: 'auto' }}>
+        <Outlet />
+      </main>
+    </div>
+  )
+}
