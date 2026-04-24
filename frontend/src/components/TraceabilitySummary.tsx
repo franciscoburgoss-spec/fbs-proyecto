@@ -17,15 +17,16 @@ const MODULO_LABELS: Record<string, string> = {
 
 export default function TraceabilitySummary({ porModulo }: TraceabilitySummaryProps) {
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ padding: '16px 20px 20px' }}>
       <h3
         style={{
-          margin: '0 0 20px',
+          margin: '0 0 16px',
           fontSize: 13,
           fontWeight: 700,
           color: '#374151',
           textTransform: 'uppercase',
           letterSpacing: 0.5,
+          fontFamily: 'inherit',
         }}
       >
         Traceability Summary
@@ -54,6 +55,7 @@ export default function TraceabilitySummary({ porModulo }: TraceabilitySummaryPr
                 fontWeight: 700,
                 color: '#111827',
                 marginBottom: 8,
+                lineHeight: '18px',
               }}
             >
               {MODULO_LABELS[m.modulo] || m.modulo}
@@ -64,6 +66,7 @@ export default function TraceabilitySummary({ porModulo }: TraceabilitySummaryPr
                 color: '#10b981',
                 fontWeight: 600,
                 marginBottom: 4,
+                lineHeight: '16px',
               }}
             >
               Approved ({m.aprobados}/{m.total})
@@ -73,6 +76,7 @@ export default function TraceabilitySummary({ porModulo }: TraceabilitySummaryPr
                 fontSize: 12,
                 color: '#9ca3af',
                 fontWeight: 500,
+                lineHeight: '16px',
               }}
             >
               Pending ({m.pendientes})

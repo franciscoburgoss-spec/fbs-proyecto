@@ -1,3 +1,5 @@
+import { UploadIcon, BarChartIcon } from './Icons'
+
 interface QuickActionsProps {
   onUpload: () => void
   onReport: () => void
@@ -5,7 +7,7 @@ interface QuickActionsProps {
 
 export default function QuickActions({ onUpload, onReport }: QuickActionsProps) {
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ padding: '16px 20px 20px' }}>
       <h3
         style={{
           margin: '0 0 16px',
@@ -14,12 +16,13 @@ export default function QuickActions({ onUpload, onReport }: QuickActionsProps) 
           color: '#374151',
           textTransform: 'uppercase',
           letterSpacing: 0.5,
+          fontFamily: 'inherit',
         }}
       >
         Quick Actions
       </h3>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <button
           onClick={onUpload}
           style={{
@@ -36,9 +39,11 @@ export default function QuickActions({ onUpload, onReport }: QuickActionsProps) 
             fontWeight: 500,
             cursor: 'pointer',
             width: '100%',
+            fontFamily: 'inherit',
+            lineHeight: '18px',
           }}
         >
-          <span>&#8593;</span>
+          <UploadIcon size={14} color="#6b7280" />
           Upload New Document
         </button>
         <button
@@ -57,9 +62,11 @@ export default function QuickActions({ onUpload, onReport }: QuickActionsProps) 
             fontWeight: 500,
             cursor: 'pointer',
             width: '100%',
+            fontFamily: 'inherit',
+            lineHeight: '18px',
           }}
         >
-          <span>&#128202;</span>
+          <BarChartIcon size={14} color="#6b7280" />
           Generate Report
         </button>
       </div>

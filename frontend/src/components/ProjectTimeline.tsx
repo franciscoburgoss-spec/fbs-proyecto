@@ -7,22 +7,29 @@ const ETAPAS = ['CHK', 'R1', 'R2', 'R3', 'APB']
 export default function ProjectTimeline({ etapaActual }: ProjectTimelineProps) {
   const currentIndex = ETAPAS.indexOf(etapaActual)
 
+  // Ancho disponible: 320px card - 40px padding (20px cada lado) = 280px
+  // 5 cajas + 4 conectores = necesitamos ajustar para que quepa
+  const boxSize = 44      // caja 44x40
+  const connectorWidth = 8 // conector pequeño
+  // Total: 5*44 + 4*8 = 220 + 32 = 252px < 280px ✓
+
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ padding: '16px 20px 20px' }}>
       <h3
         style={{
-          margin: '0 0 20px',
+          margin: '0 0 16px',
           fontSize: 13,
           fontWeight: 700,
           color: '#374151',
           textTransform: 'uppercase',
           letterSpacing: 0.5,
+          fontFamily: 'inherit',
         }}
       >
         Project Status Timeline
       </h3>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0 }}>
         {ETAPAS.map((etapa, index) => {
           const isCompleted = index < currentIndex
           const isCurrent = index === currentIndex
@@ -35,33 +42,31 @@ export default function ProjectTimeline({ etapaActual }: ProjectTimelineProps) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: 6,
-                  padding: '8px 14px',
-                  borderRadius: 6,
+                  width: boxSize,
+                  height: 40,
+                  borderRadius: 8,
                   fontSize: 12,
                   fontWeight: 700,
                   border: isCompleted
-                    ? '1px solid #10b981'
+                    ? '1px solid #a7f3d0'
                     : isCurrent
-                      ? '1px solid #3b82f6'
+                      ? '1.5px solid #3b82f6'
                       : '1px solid #e5e7eb',
                   background: isCompleted
-                    ? '#d1fae5'
+                    ? '#ecfdf5'
                     : isCurrent
-                      ? '#dbeafe'
+                      ? '#eff6ff'
                       : '#f9fafb',
-                  color: isCompleted ? '#065f46' : isCurrent ? '#1e40af' : '#9ca3af',
-                  whiteSpace: 'nowrap',
-                  minWidth: 44,
+                  color: isCompleted ? '#10b981' : isCurrent ? '#3b82f6' : '#9ca3af',
+                  cursor: 'default',
+                  transition: 'all 0.15s',
                 }}
               >
-                {isCompleted && (
-                  <span style={{ fontSize: 13 }}>&#10003;</span>
+                {isCompleted ? (
+                  <span style={{ fontSize: 16 }}>&#10003;</span>
+                ) : (
+                  etapa
                 )}
-                {isCurrent && (
-                  <span style={{ fontSize: 10 }}>&#9679;</span>
-                )}
-                {etapa}
               </div>
 
               {/* Arrow connector (except last) */}
@@ -71,10 +76,11 @@ export default function ProjectTimeline({ etapaActual }: ProjectTimelineProps) {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: 20,
-                    color: isCompleted ? '#10b981' : '#d1d5db',
+                    width: connectorWidth,
+                    color: isCompleted ? '#a7f3d0' : '#e5e7eb',
                     fontSize: 12,
                     fontWeight: 700,
+                    userSelect: 'none',
                   }}
                 >
                   &#8250;
