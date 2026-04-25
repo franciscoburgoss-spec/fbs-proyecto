@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Documento } from '../types'
 import { getAvailableTransitions } from './TransitionModal'
 import { ChevronRight, Lock, MoreHorizontal, CircleCheck, Circle, RefreshCw, Ban } from 'lucide-react'
@@ -6,6 +6,8 @@ import { ChevronRight, Lock, MoreHorizontal, CircleCheck, Circle, RefreshCw, Ban
 interface DocumentTableProps {
   documentos: Documento[]
   onAction?: (doc: Documento) => void
+  onEdit?: (doc: Documento) => void
+  onDelete?: (doc: Documento) => void
 }
 
 const STATUS_META: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode }> = {
@@ -51,7 +53,7 @@ function formatFecha(fechaStr: string): string {
   return `${fecha.getDate()} ${meses[fecha.getMonth()]} ${fecha.getFullYear()}`
 }
 
-export default function DocumentTable({ documentos, onAction }: DocumentTableProps) {
+export default function DocumentTable({ documentos, onAction, onEdit, onDelete }: DocumentTableProps) {
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set())
 
   const toggleExpand = (id: number) => {
@@ -139,7 +141,7 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
                 <div className="col-span-1 text-[12px] text-[#9ca3af] leading-5">{fecha}</div>
 
                 {/* Actions */}
-                <div className="col-span-1 text-right">
+                <div className="col-span-1 text-right relative">
                   {doc.estado === 'APB' ? (
                     <button
                       disabled
@@ -148,12 +150,12 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
                       <Lock className="w-3.5 h-3.5 text-[#9ca3af]" strokeWidth={2} />
                     </button>
                   ) : (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onAction && onAction(doc) }}
-                      className="p-1.5 rounded-md hover:bg-[#f3f4f6] transition-colors inline-flex items-center gap-1 text-[11px] text-[#6b7280]"
-                    >
-                      <MoreHorizontal className="w-3.5 h-3.5 text-[#9ca3af]" strokeWidth={2} />
-                    </button>
+                    <AccionesDropdown
+                      doc={doc}
+                      onAction={onAction}
+                      onEdit={onEdit}
+                      onDelete={onDelete}
+                    />
                   )}
                 </div>
               </div>
@@ -207,6 +209,64 @@ export default function DocumentTable({ documentos, onAction }: DocumentTablePro
           )
         })}
       </div>
+    </div>
+  )
+}
+
+
+/* Dropdown de acciones por documento */
+function AccionesDropdown({
+  doc,
+  onAction,
+  onEdit,
+  onDelete,
+}: {
+  doc: Documento
+  onAction?: (doc: Documento) => void
+  onEdit?: (doc: Documento) => void
+  onDelete?: (doc: Documento) => void
+}) {
+  const [abierto, setAbierto] = useState(false)
+
+  useEffect(() => {
+    const handleClick = () => setAbierto(false)
+    if (abierto) {
+      document.addEventListener('click', handleClick)
+      return () => document.removeEventListener('click', handleClick)
+    }
+  }, [abierto])
+
+  return (
+    <div className="relative inline-block">
+      <button
+        onClick={(e) => { e.stopPropagation(); setAbierto(!abierto) }}
+        className="p-1.5 rounded-md hover:bg-[#f3f4f6] transition-colors inline-flex items-center text-[11px] text-[#6b7280]"
+      >
+        <MoreHorizontal className="w-3.5 h-3.5 text-[#9ca3af]" strokeWidth={2} />
+      </button>
+
+      {abierto && (
+        <div className="absolute right-0 top-full mt-1 w-36 bg-white border border-[#e5e7eb] rounded-md shadow-lg z-50 py-1">
+          <button
+            onClick={(e) => { e.stopPropagation(); onAction && onAction(doc); setAbierto(false) }}
+            className="w-full text-left px-3 py-2 text-[13px] text-[#374151] hover:bg-[#f9fafb] transition-colors"
+          >
+            Transition
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onEdit && onEdit(doc); setAbierto(false) }}
+            className="w-full text-left px-3 py-2 text-[13px] text-[#374151] hover:bg-[#f9fafb] transition-colors"
+          >
+            Edit
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete && onDelete(doc); setAbierto(false) }}
+            className="w-full text-left px-3 py-2 text-[13px] text-[#ef4444] hover:bg-[#fef2f2] transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   )
 }

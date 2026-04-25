@@ -1,43 +1,60 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
-import { crearProyecto } from '../api'
+import { actualizarProyecto } from '../api'
+import type { Proyecto } from '../types'
 
-interface NuevoProyectoModalProps {
+interface EditarProyectoModalProps {
+  proyecto: Proyecto | null
   open: boolean
   onClose: () => void
-  onCreated: () => void
+  onUpdated: () => void
 }
 
-export default function NuevoProyectoModal({ open, onClose, onCreated }: NuevoProyectoModalProps) {
-  if (!open) return null
+export default function EditarProyectoModal({ proyecto, open, onClose, onUpdated }: EditarProyectoModalProps) {
+  if (!open || !proyecto) return null
   const [nombre, setNombre] = useState('')
-  const [acronimo, setAcronimo] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [cliente, setCliente] = useState('')
   const [ubicacion, setUbicacion] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (proyecto) {
+      setNombre(proyecto.nombre)
+      setDescripcion(proyecto.descripcion || '')
+      setCliente(proyecto.cliente || '')
+      setUbicacion(proyecto.ubicacion || '')
+    }
+  }, [proyecto])
+
+  if (!proyecto) return null
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!nombre.trim() || !acronimo.trim()) {
-      setError('Nombre y acrónimo son obligatorios')
+    if (!nombre.trim()) {
+      setError('Project name is required')
       return
     }
     setLoading(true)
     setError(null)
     try {
-      await crearProyecto({
-        nombre: nombre.trim(),
-        acronimo: acronimo.trim(),
-        descripcion: descripcion.trim() || undefined,
-        cliente: cliente.trim() || undefined,
-        ubicacion: ubicacion.trim() || undefined,
-      })
-      onCreated()
+      const updates: Record<string, string> = {}
+      if (nombre.trim() !== proyecto.nombre) updates.nombre = nombre.trim()
+      if (descripcion.trim() !== (proyecto.descripcion || '')) updates.descripcion = descripcion.trim() || undefined as unknown as string
+      if (cliente.trim() !== (proyecto.cliente || '')) updates.cliente = cliente.trim() || undefined as unknown as string
+      if (ubicacion.trim() !== (proyecto.ubicacion || '')) updates.ubicacion = ubicacion.trim() || undefined as unknown as string
+
+      if (Object.keys(updates).length === 0) {
+        onClose()
+        return
+      }
+
+      await actualizarProyecto(proyecto.id, updates)
+      onUpdated()
       onClose()
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Error al crear proyecto')
+      setError(err.response?.data?.detail || 'Error al actualizar proyecto')
     } finally {
       setLoading(false)
     }
@@ -49,8 +66,8 @@ export default function NuevoProyectoModal({ open, onClose, onCreated }: NuevoPr
         {/* Header */}
         <div className="px-6 py-5 border-b border-[#e5e7eb] flex items-start justify-between">
           <div>
-            <h3 className="text-base font-bold text-[#111827]">New Project</h3>
-            <p className="text-sm text-[#6b7280] mt-1">Create a new project in the system</p>
+            <h3 className="text-base font-bold text-[#111827]">Edit Project</h3>
+            <p className="text-sm text-[#6b7280] mt-1">{proyecto.acronimo}</p>
           </div>
           <button onClick={onClose} className="w-7 h-7 flex items-center justify-center text-[#9ca3af] hover:text-[#6b7280] transition-colors">
             <X className="w-5 h-5" strokeWidth={2} />
@@ -74,25 +91,9 @@ export default function NuevoProyectoModal({ open, onClose, onCreated }: NuevoPr
                 type="text"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                placeholder="e.g. Torres del Litoral"
-                className="w-full px-3 py-2 rounded-md border border-[#e5e7eb] text-[13px] text-[#374151] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6]"
+                className="w-full px-3 py-2 rounded-md border border-[#e5e7eb] text-[13px] text-[#374151] focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6]"
                 required
               />
-            </div>
-
-            <div>
-              <label className="block text-[13px] font-medium text-[#374151] mb-1.5">
-                Acronym <span className="text-[#ef4444]">*</span>
-              </label>
-              <input
-                type="text"
-                value={acronimo}
-                onChange={(e) => setAcronimo(e.target.value.toUpperCase())}
-                placeholder="e.g. TDL-2025"
-                className="w-full px-3 py-2 rounded-md border border-[#e5e7eb] text-[13px] text-[#374151] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6]"
-                required
-              />
-              <p className="text-[11px] text-[#9ca3af] mt-1">Unique identifier, uppercase recommended</p>
             </div>
 
             <div>
@@ -100,9 +101,8 @@ export default function NuevoProyectoModal({ open, onClose, onCreated }: NuevoPr
               <textarea
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
-                placeholder="Optional project description"
                 rows={3}
-                className="w-full px-3 py-2 rounded-md border border-[#e5e7eb] text-[13px] text-[#374151] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6] resize-y"
+                className="w-full px-3 py-2 rounded-md border border-[#e5e7eb] text-[13px] text-[#374151] focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6] resize-y"
               />
             </div>
 
@@ -113,8 +113,7 @@ export default function NuevoProyectoModal({ open, onClose, onCreated }: NuevoPr
                   type="text"
                   value={cliente}
                   onChange={(e) => setCliente(e.target.value)}
-                  placeholder="e.g. Client A"
-                  className="w-full px-3 py-2 rounded-md border border-[#e5e7eb] text-[13px] text-[#374151] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6]"
+                  className="w-full px-3 py-2 rounded-md border border-[#e5e7eb] text-[13px] text-[#374151] focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6]"
                 />
               </div>
               <div>
@@ -123,8 +122,7 @@ export default function NuevoProyectoModal({ open, onClose, onCreated }: NuevoPr
                   type="text"
                   value={ubicacion}
                   onChange={(e) => setUbicacion(e.target.value)}
-                  placeholder="e.g. Zona Norte"
-                  className="w-full px-3 py-2 rounded-md border border-[#e5e7eb] text-[13px] text-[#374151] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6]"
+                  className="w-full px-3 py-2 rounded-md border border-[#e5e7eb] text-[13px] text-[#374151] focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6]"
                 />
               </div>
             </div>
@@ -132,9 +130,8 @@ export default function NuevoProyectoModal({ open, onClose, onCreated }: NuevoPr
         </form>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-[#e5e7eb] flex justify-end gap-2.5">
+        <div className="px-6 py-4 border-t border-[#e5e7eb] flex justify-between items-center">
           <button
-            type="button"
             onClick={onClose}
             className="px-4 py-2 rounded-md border border-[#e5e7eb] bg-white text-[#374151] text-[13px] font-medium hover:bg-[#f9fafb] transition-colors"
           >
@@ -142,14 +139,14 @@ export default function NuevoProyectoModal({ open, onClose, onCreated }: NuevoPr
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading || !nombre.trim() || !acronimo.trim()}
+            disabled={loading || !nombre.trim()}
             className={`px-4 py-2 rounded-md border text-[13px] font-medium text-white transition-colors ${
-              loading || !nombre.trim() || !acronimo.trim()
+              loading || !nombre.trim()
                 ? 'border-[#9ca3af] bg-[#9ca3af] cursor-not-allowed'
                 : 'border-[#111827] bg-[#111827] hover:bg-[#374151] cursor-pointer'
             }`}
           >
-            {loading ? 'Creating...' : 'Create Project'}
+            {loading ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </div>

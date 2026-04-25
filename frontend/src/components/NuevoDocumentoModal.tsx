@@ -4,6 +4,7 @@ import { crearDocumento } from '../api'
 import type { DocumentoIn } from '../types'
 
 interface NuevoDocumentoModalProps {
+  open: boolean
   proyectoId: number
   proyectoNombre: string
   onClose: () => void
@@ -16,7 +17,8 @@ const MODULOS = [
   { value: 'MDS' as const, label: 'MDS — Memoria Descriptiva' },
 ]
 
-export default function NuevoDocumentoModal({ proyectoId, proyectoNombre, onClose, onCreated }: NuevoDocumentoModalProps) {
+export default function NuevoDocumentoModal({ open, proyectoId, proyectoNombre, onClose, onCreated }: NuevoDocumentoModalProps) {
+  if (!open) return null
   const [nombre, setNombre] = useState('')
   const [modulo, setModulo] = useState<'EST' | 'HAB' | 'MDS'>('EST')
   const [tipo, setTipo] = useState('PDF')

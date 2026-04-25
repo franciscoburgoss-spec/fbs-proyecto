@@ -3,11 +3,15 @@ import { createContext, useContext, useState, useCallback, type ReactNode } from
 interface ProyectoActivoContextType {
   proyectoActivoId: number
   cambiarProyecto: (id: number) => void
+  showEditarProyecto: boolean
+  setShowEditarProyecto: (show: boolean) => void
 }
 
 const ProyectoActivoContext = createContext<ProyectoActivoContextType>({
   proyectoActivoId: 1,
   cambiarProyecto: () => {},
+  showEditarProyecto: false,
+  setShowEditarProyecto: () => {},
 })
 
 export function ProyectoActivoProvider({ children }: { children: ReactNode }) {
@@ -15,6 +19,7 @@ export function ProyectoActivoProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem('fbs_proyecto_activo')
     return stored ? parseInt(stored, 10) : 1
   })
+  const [showEditarProyecto, setShowEditarProyecto] = useState(false)
 
   const cambiarProyecto = useCallback((id: number) => {
     localStorage.setItem('fbs_proyecto_activo', String(id))
@@ -22,7 +27,7 @@ export function ProyectoActivoProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <ProyectoActivoContext.Provider value={{ proyectoActivoId, cambiarProyecto }}>
+    <ProyectoActivoContext.Provider value={{ proyectoActivoId, cambiarProyecto, showEditarProyecto, setShowEditarProyecto }}>
       {children}
     </ProyectoActivoContext.Provider>
   )

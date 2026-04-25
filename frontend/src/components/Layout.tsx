@@ -37,7 +37,7 @@ function Breadcrumb() {
 
 export default function Layout() {
   const { user, logout } = useAuth()
-  const { proyectoActivoId, cambiarProyecto } = useProyectoActivoContext()
+  const { proyectoActivoId, cambiarProyecto, setShowEditarProyecto } = useProyectoActivoContext()
 
   return (
     <div className="flex h-screen bg-[#f8f9fa] font-sans text-[#111827]">
@@ -95,7 +95,10 @@ export default function Layout() {
           <Breadcrumb />
           <div className="flex items-center gap-4">
             <ProjectSelector value={proyectoActivoId} onChange={cambiarProyecto} />
-            <button className="px-3.5 py-1.5 rounded-md border border-[#111827] bg-[#111827] text-white text-[13px] font-medium hover:bg-[#374151] transition-colors">
+            <button
+              onClick={() => setShowEditarProyecto(true)}
+              className="px-3.5 py-1.5 rounded-md border border-[#111827] bg-[#111827] text-white text-[13px] font-medium hover:bg-[#374151] transition-colors"
+            >
               Edit Project
             </button>
             <div className="flex items-center gap-1.5">
