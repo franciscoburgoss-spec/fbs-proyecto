@@ -5,6 +5,7 @@ import { useProyectoActivoContext } from '../context/ProyectoActivoContext'
 import { useProyectoDetail } from '../hooks/useProyectoDetail'
 import { useTraceability } from '../hooks/useTraceability'
 import { useProyectos } from '../hooks/useProyectos'
+import { useAuth } from '../hooks/useAuth'
 import DocumentTable from './DocumentTable'
 import ProjectTimeline from './ProjectTimeline'
 import TraceabilitySummary from './TraceabilitySummary'
@@ -21,11 +22,14 @@ import { Plus } from 'lucide-react'
 
 export default function Dashboard() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const { proyectoActivoId, showEditarProyecto, setShowEditarProyecto } = useProyectoActivoContext()
   const { detalle, cargarDetalle } = useProyectoDetail()
   const { documentos, loading, fetch } = useDocumentos({ proyecto_id: proyectoActivoId })
   const { porModulo, loading: loadingTrace } = useTraceability(proyectoActivoId)
-  const { fetch: fetchProyectos } = useProyectos()
+  const { fetch: fetchProyectos, transicionar } = useProyectos()
+
+  const puedeTransicionar = user?.rol === 'admin'
 
   const [docSeleccionado, setDocSeleccionado] = useState<Documento | null>(null)
   const [docEditar, setDocEditar] = useState<Documento | null>(null)
@@ -103,6 +107,20 @@ export default function Dashboard() {
     }
   }
 
+  const handleConfirmarTransicion = async (proyectoId: number, nuevaEtapa: string) => {
+    try {
+      await transicionar(proyectoId, nuevaEtapa)
+      await cargarDetalle(proyectoActivoId)
+      await fetch()
+      setToast(`Project advanced to ${nuevaEtapa}`)
+      setTimeout(() => setToast(null), 3000)
+    } catch (err: any) {
+      setToast(err.response?.data?.detail || 'Error transitioning project')
+      setTimeout(() => setToast(null), 5000)
+      throw err
+    }
+  }
+
   return (
     <div className="flex gap-6 h-full relative">
       {/* Toast */}
@@ -157,7 +175,16 @@ export default function Dashboard() {
       {/* Right sidebar */}
       <div className="w-80 shrink-0 flex flex-col gap-4">
         <div className="border border-[#e5e7eb] rounded-lg bg-white">
-          {proyecto ? <ProjectTimeline etapaActual={proyecto.etapa_actual} /> : <div className="p-4 text-[#9ca3af]">Loading timeline...</div>}
+          {proyecto ? (
+            <ProjectTimeline
+              etapaActual={proyecto.etapa_actual}
+              proyectoId={proyecto.id}
+              onConfirmarTransicion={handleConfirmarTransicion}
+              puedeTransicionar={puedeTransicionar}
+            />
+          ) : (
+            <div className="p-4 text-[#9ca3af]">Loading timeline...</div>
+          )}
         </div>
         <div className="border border-[#e5e7eb] rounded-lg bg-white">
           {loadingTrace ? <div className="p-4 text-[#9ca3af]">Loading traceability...</div> : <TraceabilitySummary porModulo={porModulo} />}
