@@ -9,6 +9,8 @@ import ModulesPage from './components/ModulesPage'
 import TasksPage from './components/TasksPage'
 import UsersRolesPage from './components/UsersRolesPage'
 import SettingsPage from './components/SettingsPage'
+import ReportsPage from './components/ReportsPage'
+import AuditLogPage from './components/AuditLogPage'
 import LoginPage from './components/LoginPage'
 
 function AppRoutes() {
@@ -24,6 +26,8 @@ function AppRoutes() {
         <Route path="/tasks" element={<TasksPage />} />
         <Route path="/users" element={<UsersRolesPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/audit" element={<AuditLogPage />} />
       </Route>
     </Routes>
   )
