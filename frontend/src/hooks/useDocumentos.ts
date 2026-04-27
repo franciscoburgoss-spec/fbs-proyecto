@@ -7,6 +7,14 @@ export function useDocumentos(filtros?: { proyecto_id?: number; etapa?: string; 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Desestructurar filtros para que useCallback dependa de valores primitivos,
+  // no de la referencia del objeto. Esto evita recreacion infinita de fetch
+  // cuando el componente padre crea un nuevo objeto filtros en cada render.
+  const proyectoId = filtros?.proyecto_id
+  const etapa = filtros?.etapa
+  const estado = filtros?.estado
+  const modulo = filtros?.modulo
+
   const fetch = useCallback(async () => {
     setLoading(true)
     setError(null)
@@ -18,7 +26,7 @@ export function useDocumentos(filtros?: { proyecto_id?: number; etapa?: string; 
     } finally {
       setLoading(false)
     }
-  }, [filtros])
+  }, [proyectoId, etapa, estado, modulo])
 
   useEffect(() => { fetch() }, [fetch])
 
