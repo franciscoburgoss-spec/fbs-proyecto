@@ -73,7 +73,7 @@ export default function DocumentoList() {
           <select value={form.proyecto_id || ''} onChange={e => setForm(f => ({ ...f, proyecto_id: Number(e.target.value) }))}>
             {proyectos.map(p => <option key={p.id} value={p.id}>{p.acronimo}</option>)}
           </select>
-          <select value={form.modulo || ''} onChange={e => setForm(f => ({ ...f, modulo: e.target.value as any }))}>
+          <select value={form.modulo || ''} onChange={e => setForm(f => ({ ...f, modulo: e.target.value as 'EST' | 'HAB' | 'MDS' }))}>
             <option value="">Modulo</option>
             <option value="EST">EST</option>
             <option value="HAB">HAB</option>

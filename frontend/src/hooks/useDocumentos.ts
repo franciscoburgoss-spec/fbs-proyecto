@@ -18,7 +18,7 @@ export function useDocumentos(filtros?: { proyecto_id?: number; etapa?: string; 
     } finally {
       setLoading(false)
     }
-  }, [filtros?.proyecto_id, filtros?.etapa, filtros?.estado, filtros?.modulo])
+  }, [filtros])
 
   useEffect(() => { fetch() }, [fetch])
 

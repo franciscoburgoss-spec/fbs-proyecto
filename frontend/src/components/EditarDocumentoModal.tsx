@@ -11,7 +11,6 @@ interface EditarDocumentoModalProps {
 }
 
 export default function EditarDocumentoModal({ documento, open, onClose, onUpdated }: EditarDocumentoModalProps) {
-  if (!open || !documento) return null
   const [nombre, setNombre] = useState('')
   const [tipo, setTipo] = useState('')
   const [tt, setTt] = useState('')
@@ -28,8 +27,7 @@ export default function EditarDocumentoModal({ documento, open, onClose, onUpdat
     }
   }, [documento])
 
-  if (!documento) return null
-
+  if (!open || !documento) return null
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!nombre.trim()) {

@@ -18,7 +18,6 @@ const MODULOS = [
 ]
 
 export default function NuevoDocumentoModal({ open, proyectoId, proyectoNombre, onClose, onCreated }: NuevoDocumentoModalProps) {
-  if (!open) return null
   const [nombre, setNombre] = useState('')
   const [modulo, setModulo] = useState<'EST' | 'HAB' | 'MDS'>('EST')
   const [tipo, setTipo] = useState('PDF')
@@ -26,6 +25,7 @@ export default function NuevoDocumentoModal({ open, proyectoId, proyectoNombre, 
   const [nn, setNn] = useState('01')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  if (!open) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

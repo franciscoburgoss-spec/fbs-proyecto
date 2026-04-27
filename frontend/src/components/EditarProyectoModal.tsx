@@ -11,7 +11,6 @@ interface EditarProyectoModalProps {
 }
 
 export default function EditarProyectoModal({ proyecto, open, onClose, onUpdated }: EditarProyectoModalProps) {
-  if (!open || !proyecto) return null
   const [nombre, setNombre] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [cliente, setCliente] = useState('')
@@ -28,8 +27,7 @@ export default function EditarProyectoModal({ proyecto, open, onClose, onUpdated
     }
   }, [proyecto])
 
-  if (!proyecto) return null
-
+  if (!open || !proyecto) return null
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!nombre.trim()) {

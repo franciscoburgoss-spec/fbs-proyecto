@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useProyectos } from '../hooks/useProyectos'
-import type { ProyectoIn } from '../types'
+import type { ProyectoIn, Proyecto } from '../types'
 
 const ETAPAS = ['CHK', 'R1', 'R2', 'R3', 'APB'] as const
 
@@ -26,13 +26,13 @@ export default function ProyectoList() {
     fetch()
   }
 
-  const startEdit = (p: any) => {
+  const startEdit = (p: Proyecto) => {
     setForm({ nombre: p.nombre, descripcion: p.descripcion || '', cliente: p.cliente || '', ubicacion: p.ubicacion || '' })
     setEditId(p.id)
     setShowForm(true)
   }
 
-  const etapaIndex = (etapa: string) => ETAPAS.indexOf(etapa as any)
+  const etapaIndex = (etapa: string) => ETAPAS.indexOf(etapa)
   const nextEtapa = (etapa: string) => {
     const idx = etapaIndex(etapa)
     return idx < ETAPAS.length - 1 ? ETAPAS[idx + 1] : null

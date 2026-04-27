@@ -9,7 +9,6 @@ interface NuevoProyectoModalProps {
 }
 
 export default function NuevoProyectoModal({ open, onClose, onCreated }: NuevoProyectoModalProps) {
-  if (!open) return null
   const [nombre, setNombre] = useState('')
   const [acronimo, setAcronimo] = useState('')
   const [descripcion, setDescripcion] = useState('')
@@ -17,6 +16,7 @@ export default function NuevoProyectoModal({ open, onClose, onCreated }: NuevoPr
   const [ubicacion, setUbicacion] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  if (!open) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
