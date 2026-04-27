@@ -32,7 +32,7 @@ export default function ProyectoList() {
     setShowForm(true)
   }
 
-  const etapaIndex = (etapa: string) => ETAPAS.indexOf(etapa)
+  const etapaIndex = (etapa: string) => ETAPAS.indexOf(etapa as typeof ETAPAS[number])
   const nextEtapa = (etapa: string) => {
     const idx = etapaIndex(etapa)
     return idx < ETAPAS.length - 1 ? ETAPAS[idx + 1] : null
